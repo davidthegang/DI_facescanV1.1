@@ -14,6 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Moul&display=swap');
         :root {
             --primary-glow: rgba(167, 139, 250, 0.5); /* A softer violet glow */
         }
@@ -70,9 +71,9 @@
             padding: 10px 15px; font-size: 1rem; color: #e2e8f0; 
         }
         .choices__list--dropdown { background-color: #1e293b; border-color: #475569; border-radius: 12px; }
-        .choices__item--choice { color: #cbd5e1; }
+        .choices__item--choice { color: #000000; }
         .choices__item--choice.is-highlighted { background-color: #334155; }
-        .choices__placeholder { color: #94a3b8; }
+        .choices__placeholder { color: #ffffff; }
         /* Modal Style */
         .modal {
             background: rgba(15, 23, 42, 0.8);
@@ -82,18 +83,21 @@
             background: #1e293b; /* Slate 800 */
             border: 1px solid #475569; /* Slate 600 */
         }
+        .khmer-title {
+            font-family: "Moul", serif;
+        }
     </style>
 </head>
 
 <body class="bg-slate-900">
     <div id="loading-state" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50 transition-opacity duration-500">
         <img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
-        <p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p>
+        <p class="text-slate-300 text-lg">កំពុងទាញយកទិន្នន័យ...</p>
     </div>
 
     <div class="container w-full max-w-md p-6 main-card">
-        <h1 class="text-center text-2xl font-bold mb-2 text-white">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-        <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+        <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
+        <p id="subtitle" class="text-center mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
 
         <div id="selection-area" class="mb-5">
             <select id="student-select"></select>
@@ -103,6 +107,11 @@
             <div id="video-wrapper" class="video-container w-64 h-64 bg-slate-700">
                 <video id="video" autoplay muted playsinline></video>
                 <div class="scanner-line"></div>
+                <button id="switch-camera-btn" class="absolute bottom-3 right-3 w-12 h-12 bg-black bg-opacity-40 rounded-full flex items-center justify-center text-white hover:bg-opacity-60 transition transform hover:scale-110" title="Switch Camera">
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.691v4.992h-4.992m0 0l-3.182-3.182a8.25 8.25 0 0111.667 0l3.182 3.182" />
+                    </svg>
+                </button>
             </div>
             <canvas id="capture-canvas" class="hidden"></canvas>
             <img id="photo-preview" class="hidden w-64 h-64 rounded-full border-4 border-green-400 object-cover shadow-lg">
@@ -142,6 +151,7 @@
     const faceStatus = document.getElementById('face-status');
     const subtitle = document.getElementById('subtitle');
     const loadingState = document.getElementById('loading-state');
+    const switchCameraBtn = document.getElementById('switch-camera-btn');
     const modal = document.getElementById('modal');
     const modalIcon = document.getElementById('modal-icon');
     const modalMessage = document.getElementById('modal-message');
@@ -153,7 +163,7 @@
         loading: `<div class="w-16 h-16 border-4 border-slate-500 border-t-indigo-500 rounded-full animate-spin"></div>`
     };
 
-    let studentsData = [], currentStream, faceApiInterval, stableFrames = 0, choicesInstance;
+    let studentsData = [], currentStream, faceApiInterval, stableFrames = 0, choicesInstance, currentFacingMode = 'user';
     
     function showModal(type, message) {
         modalIcon.innerHTML = icons[type];
@@ -195,12 +205,14 @@
       }
     }
 
-    async function startCamera() {
+    async function startCamera(facingMode = 'user') {
+      currentFacingMode = facingMode;
       subtitle.textContent = "កំពុងបើកកាមេរ៉ា...";
       cameraSection.classList.remove('hidden');
       document.getElementById('selection-area').classList.add('hidden');
+      stopCamera(); // Stop any existing stream before starting a new one
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: 640, height: 480 } });
         currentStream = stream;
         video.srcObject = stream;
         video.onloadedmetadata = () => {
@@ -218,10 +230,7 @@
       clearInterval(faceApiInterval);
       faceApiInterval = setInterval(async () => {
         const result = await faceapi.detectSingleFace(video, options).withFaceExpressions();
-        let allGood = false;
-
         if (result && result.detection.score > 0.8) {
-          allGood = true;
           stableFrames++;
           faceStatus.textContent = `ល្អណាស់! (${stableFrames}/4)`;
           faceStatus.classList.remove('text-slate-400');
@@ -319,7 +328,12 @@
       videoWrapper.classList.remove('hidden');
       faceStatus.classList.remove('hidden');
       stableFrames = 0;
-      startCamera();
+      startCamera(currentFacingMode);
+    };
+    
+    switchCameraBtn.onclick = () => {
+        const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        startCamera(newFacingMode);
     };
 
     document.addEventListener("visibilitychange", () => {
@@ -332,7 +346,7 @@
       await fetchStudents();
       loadingState.style.display = 'none';
       studentSelect.addEventListener('change', async e => {
-        if (e.detail.value) await startCamera();
+        if (e.detail.value) await startCamera('user'); // Default to front camera on new selection
       });
     };
   </script>
