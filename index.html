@@ -1,522 +1,227 @@
-
 <!DOCTYPE html>
 <html lang="km">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Scan Digital Industry</title>
-    <link rel="shortcut icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Choices.js for searchable dropdown -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <!-- face-api.js for face detection -->
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    <style>
-        body {
-            font-family: 'Kantumruy Pro', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #f0f2f5;
-            background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
-        }
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
-        #overlay, #video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* This makes the video fill the circle */
-            transform: scaleX(-1);
-        }
-        .video-container {
-            position: relative;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 6px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: border-color 0.3s ease;
-        }
-        .video-container.ready {
-            border-color: #22c55e; /* Green-500 */
-        }
-        .choices__inner {
-            background-color: white;
-            padding: 0.55rem 2.5rem 0.55rem 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db;
-            min-height: 3rem;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 1.25rem 1.25rem;
-        }
-        .choices[data-type*="select-one"]::after {
-            display: none;
-        }
-    </style>
-    <!-- Khmer Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Face Scan Digital Industry</title>
+  <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Kantumruy Pro', sans-serif;
+      background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    video, canvas { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .video-container { position: relative; border-radius: 50%; overflow: hidden; border: 5px solid #e5e7eb; transition: .3s; }
+    .video-container.ready { border-color: #22c55e; box-shadow: 0 0 20px rgba(34,197,94,0.5); }
+    .loader {
+      border: 3px solid #fff; border-top: 3px solid #6b21a8; border-radius: 50%;
+      width: 20px; height: 20px; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
 </head>
+
 <body class="bg-gray-100">
+  <div id="loading-state" class="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-50">
+    <img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 animate-pulse">
+    <p class="text-white text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p>
+  </div>
 
-<div id="loading-state" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
-    <img src="di_logo.png" alt="Logo" 
-         class="w-28 h-28 mb-6 rounded-full object-cover shadow-lg" 
-         id="loading-logo">
-    <p class="text-white mt-4 text-lg font-semibold">សូមរង់ចាំ...</p>
-</div>
+  <div class="container w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl relative">
+    <h1 class="text-center text-2xl font-bold mb-2">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
+    <p id="subtitle" class="text-center text-gray-500 mb-4">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
 
-<div class="container p-4">
-    <div id="app-card" class="relative bg-white p-6 md:p-8 rounded-2xl shadow-2xl transition-all duration-300">
-        
-        <button id="back-btn" class="absolute -top-5 -left-5 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:bg-gray-200 hover:shadow-xl transform hover:scale-110 transition-all duration-300 hidden">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        </button>
-
-        <div class="text-center mb-2">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-        </div>
-        <p id="subtitle" class="text-center text-gray-500 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
-
-        <div id="form-state" class="hidden">
-            <div id="selection-area" class="mb-6">
-                 <div class="grid grid-cols-3 gap-4 items-center">
-                    <div class="col-span-2">
-                        <select id="student-select"></select>
-                    </div>
-                    <div>
-                        <div id="student-class-wrapper" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-800 font-bold hidden">
-                            <span id="student-class-display" class="truncate"></span>
-                        </div>
-                        <div id="class-placeholder" class="w-full p-3 bg-gray-100 rounded-lg h-12 flex items-center justify-center text-gray-400">
-                            <span>...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="camera-section" class="hidden">
-                <div id="video-wrapper" class="video-container aspect-square mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full bg-gray-200">
-                    <video id="video" playsinline autoplay muted></video>
-                    <canvas id="overlay"></canvas>
-                </div>
-                <canvas id="capture-canvas" class="hidden"></canvas>
-                <img id="photo-preview" class="hidden rounded-full mx-auto mb-4 w-56 sm:w-64 md:w-80 max-w-full aspect-square object-cover border-4 border-green-500">
-                <p id="face-status" class="text-center text-sm mb-4 h-5 font-semibold"></p>
-            </div>
-
-            <div class="flex flex-col space-y-3">
-                <button id="upload-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition hidden disabled:bg-gray-400 flex items-center justify-center space-x-2">
-                    <span id="upload-text">
-                        <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        បញ្ជូនរូបភាព
-                    </span>
-                    <div id="upload-loader" class="loader w-5 h-5 border-t-white hidden"></div>
-                </button>
-                <button id="retake-btn" class="w-full bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition hidden flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.13-4.13M20 15a9 9 0 01-14.13 4.13"></path></svg>
-                    <span>ថតម្តងទៀត</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-             <div class="bg-white rounded-2xl p-8 shadow-xl text-center transform transition-all" style="animation: fade-in-up 0.3s forwards;">
-                 <div id="modal-icon-container" class="mx-auto mb-4"></div>
-                 <p id="modal-message" class="text-lg text-gray-700 mb-6"></p>
-                 <button id="modal-close-btn" class="bg-blue-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">យល់ព្រម</button>
-             </div>
-        </div>
-        <style>
-            @keyframes fade-in-up {
-                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-                100% { opacity: 1; transform: translateY(0) scale(1); }
-            }
-        </style>
+    <!-- Selection -->
+    <div id="selection-area" class="mb-5">
+      <select id="student-select"></select>
     </div>
 
-<script>
-    // ===================================================================================
-    // CONFIGURATION
-    // ===================================================================================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9mHDxed9qEJZl7JP0KifDmQKcZqGStL1zqLBJpJ-qYD6pqywHCkvhGfaoXXbpQgKq/exec'; // <--- Change this URL
-    // ===================================================================================
+    <!-- Camera -->
+    <div id="camera-section" class="hidden flex flex-col items-center space-y-3">
+      <div id="video-wrapper" class="video-container w-64 h-64 bg-gray-200 mb-3">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+      </div>
+      <canvas id="capture-canvas" class="hidden"></canvas>
+      <img id="photo-preview" class="hidden w-64 h-64 rounded-full border-4 border-green-500 object-cover">
+      <p id="face-status" class="text-center text-sm h-5 font-semibold"></p>
+      <div class="flex flex-col w-full space-y-2">
+        <button id="upload-btn" class="hidden w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+          បញ្ជូនរូបភាព
+        </button>
+        <button id="retake-btn" class="hidden w-full bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition">
+          ថតម្តងទៀត
+        </button>
+      </div>
+    </div>
+  </div>
 
-    // DOM Elements
-    const loadingState = document.getElementById('loading-state');
-    const formState = document.getElementById('form-state');
-    const subtitle = document.getElementById('subtitle');
-    const selectionArea = document.getElementById('selection-area');
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9mHDxed9qEJZl7JP0KifDmQKcZqGStL1zqLBJpJ-qYD6pqywHCkvhGfaoXXbpQgKq/exec';
     const studentSelect = document.getElementById('student-select');
-    const studentClassWrapper = document.getElementById('student-class-wrapper');
-    const studentClassDisplay = document.getElementById('student-class-display');
-    const classPlaceholder = document.getElementById('class-placeholder');
+    const video = document.getElementById('video');
+    const captureCanvas = document.getElementById('capture-canvas');
+    const photoPreview = document.getElementById('photo-preview');
     const uploadBtn = document.getElementById('upload-btn');
     const retakeBtn = document.getElementById('retake-btn');
     const cameraSection = document.getElementById('camera-section');
     const videoWrapper = document.getElementById('video-wrapper');
-    const video = document.getElementById('video');
-    const captureCanvas = document.getElementById('capture-canvas');
-    const photoPreview = document.getElementById('photo-preview');
     const faceStatus = document.getElementById('face-status');
-    const uploadText = document.getElementById('upload-text');
-    const uploadLoader = document.getElementById('upload-loader');
-    const backBtn = document.getElementById('back-btn');
-    
-    // Modal Elements
-    const messageModal = document.getElementById('message-modal');
-    const modalMessage = document.getElementById('modal-message');
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    const modalIconContainer = document.getElementById('modal-icon-container');
+    const subtitle = document.getElementById('subtitle');
+    const loadingState = document.getElementById('loading-state');
 
-    const successIcon = `<svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-    const errorIcon = `<svg class="w-16 h-16 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+    let studentsData = [], currentStream, faceApiInterval, stableFrames = 0, choicesInstance;
 
-    let studentsData = [];
-    let currentStream;
-    let faceApiInterval;
-    let choicesInstance = null;
-    let stableFramesCount = 0;
-
-    function showMessage(message, type = 'success') {
-        modalMessage.textContent = message;
-        modalIconContainer.innerHTML = type === 'success' ? successIcon : errorIcon;
-        messageModal.classList.remove('hidden');
+    // 🧠 Initialize dropdown
+    function initChoices() {
+      choicesInstance = new Choices(studentSelect, {
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
+        noResultsText: 'រកមិនឃើញទិន្នន័យ',
+        itemSelectText: '',
+      });
     }
 
-    modalCloseBtn.addEventListener('click', () => {
-        messageModal.classList.add('hidden');
-    });
-
     async function loadModels() {
-        const MODEL_URL = './weights';
-        const loadingText = loadingState.querySelector('p');
-        try {
-            // OPTIMIZED: Using Tiny models for maximum speed
-            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (1/3)';
-            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (2/3)';
-            await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
-            loadingText.textContent = 'កំពុងទាញយកម៉ូដែលវិភាគមុខ... (3/3)';
-            await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-            console.log("FaceAPI Tiny models loaded successfully for performance.");
-        } catch (error)
-        {
-            console.error("Error loading FaceAPI models from local folder:", error);
-            showMessage("មិនអាចទាញយកម៉ូដែលវិភាគមុខបានទេ។ សូមប្រាកដថា Folder 'weights' ត្រូវបានដាក់อย่างถูกต้อง។", "error");
-            loadingState.querySelector('img').style.display = 'none';
-            loadingText.innerHTML = 'เกิดข้อผิดพลาดในการโหลดโมเดล<br>กรุณาตรวจสอบ Console Log';
-            loadingText.classList.add('text-red-400');
-        }
+      const MODEL_URL = './weights';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+      ]);
     }
 
     async function fetchStudents() {
-        const loadingText = loadingState.querySelector('p');
-        loadingText.textContent = 'កំពុងទាញយកទិន្នន័យ...';
-        
-        if (!SCRIPT_URL.includes('script.google.com')) {
-            loadingState.querySelector('img').style.display = 'none';
-            loadingText.textContent = 'សូមមេត្តាប្តូរ SCRIPT_URL នៅក្នុងកូដជាមុនសិន។';
-            loadingText.classList.add('text-red-400');
-            return;
-        }
-        try {
-            const response = await fetch(SCRIPT_URL);
-            if (!response.ok) throw new Error(`Network response was not ok (${response.status})`);
-            const data = await response.json();
-            if (data.error) throw new Error(data.message);
-            studentsData = data.slice(1);
-            populateChoices();
-            
-            loadingState.classList.add('opacity-0');
-            setTimeout(() => {
-                loadingState.style.display = 'none';
-            }, 300);
-
-            formState.classList.remove('hidden');
-        } catch (error) {
-            console.error('Error fetching student data:', error);
-            loadingState.querySelector('img').style.display = 'none';
-            loadingText.innerHTML = `มีបញ្หាក្នុងการទាញយកទិន្នន័យ។<br>សូមពិនិត្យ URL របស់ Apps Script ហើយព្យាយាមម្តងទៀត។`;
-            loadingText.classList.add('text-red-400');
-        }
-    }
-
-    function initializeChoices() {
-        choicesInstance = new Choices(studentSelect, {
-            searchEnabled: true,
-            itemSelectText: 'ចុចដើម្បីជ្រើសរើស',
-            noResultsText: 'រកមិនឃើញលទ្ធផល',
-            noChoicesText: 'កំពុងទាញយកទិន្នន័យ...',
-            placeholder: true,
-            placeholderValue: 'អត្តលេខ ឬឈ្មោះ...',
-            shouldSort: false,
-        });
-    }
-
-    function populateChoices() {
-        const choices = studentsData.map(student => {
-            const id = student[0];
-            const name = student[1];
-            if (id && name) {
-                return { value: id, label: `${id} - ${name}` };
-            }
-            return null;
-        }).filter(Boolean);
-        choicesInstance.setChoices(choices, 'value', 'label', false);
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        studentsData = data.slice(1);
+        const options = studentsData.map(s => ({ value: s[0], label: `${s[0]} - ${s[1]}` }));
+        choicesInstance.setChoices(options, 'value', 'label', false);
+      } catch (e) {
+        alert('មិនអាចទាញយកទិន្នន័យសិស្សបានទេ');
+      }
     }
 
     async function startCamera() {
-        subtitle.textContent = "ប្រព័ន្ធនឹងថតដោយស្វ័យប្រវត្តិ";
-        cameraSection.classList.remove('hidden');
-        backBtn.classList.remove('hidden');
-        try {
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-            video.srcObject = currentStream;
-            video.addEventListener('loadedmetadata', () => {
-                startFaceDetection();
-            });
-        } catch (err) {
-            console.error("Error accessing camera: ", err);
-            showMessage("មិនអាចចូលប្រើកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតឱ្យគេហទំព័រនេះប្រើប្រាស់កាមេរ៉ារបស់អ្នក។", "error");
-        }
+      subtitle.textContent = "កំពុងបើកកាមេរ៉ា...";
+      cameraSection.classList.remove('hidden');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+        currentStream = stream;
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          subtitle.textContent = "សូមចាំប្រព័ន្ធវិភាគមុខ...";
+          detectFace();
+        };
+      } catch (err) {
+        alert('សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា');
+      }
     }
 
-    studentSelect.addEventListener('change', async (event) => {
-        const selectedId = event.detail.value;
-        if (selectedId) {
-            const student = studentsData.find(s => s[0].toString() === selectedId.toString());
-            if (student) {
-                studentClassDisplay.textContent = student[2] || 'N/A';
-                classPlaceholder.classList.add('hidden');
-                studentClassWrapper.classList.remove('hidden');
-                selectionArea.classList.add('hidden');
-                await startCamera();
-            }
+    async function detectFace() {
+      const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+      clearInterval(faceApiInterval);
+      faceApiInterval = setInterval(async () => {
+        const result = await faceapi.detectSingleFace(video, options).withFaceExpressions();
+        if (result && result.detection.score > 0.8) {
+          stableFrames++;
+          faceStatus.textContent = `កំពុងចាប់ផ្ទៃមុខ... (${stableFrames}/4)`;
+          faceStatus.classList.replace('text-red-500', 'text-green-500');
+          videoWrapper.classList.add('ready');
+          if (stableFrames >= 4) captureFace();
         } else {
-             classPlaceholder.classList.remove('hidden');
-             studentClassWrapper.classList.add('hidden');
+          stableFrames = 0;
+          faceStatus.textContent = "សូមដាក់មុខចំកណ្តាលកាមេរ៉ា";
+          faceStatus.classList.add('text-red-500');
+          videoWrapper.classList.remove('ready');
         }
-    });
-
-    function startFaceDetection() {
-        stableFramesCount = 0;
-        // OPTIMIZED: Using TinyFaceDetectorOptions for speed
-        const detectionOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
-
-        faceApiInterval = setInterval(async () => {
-            if (video.readyState < 3) return;
-            
-            const detection = await faceapi.detectSingleFace(video, detectionOptions)
-                .withFaceLandmarks(true) // Use tiny landmark model
-                .withFaceExpressions();
-
-            let allConditionsMet = false;
-            let feedbackMessage = 'រកមិនឃើញផ្ទៃមុខ សូមដាក់មុខចំកណ្តាល។';
-
-            if (detection) {
-                const expressions = detection.expressions;
-                const neutral = expressions.neutral > 0.7;
-                const happy = expressions.happy > 0.7;
-
-                const box = detection.detection.box;
-                const faceSize = (box.width + box.height) / 2;
-                const videoSize = (video.videoWidth + video.videoHeight) / 2;
-                const isCloseEnough = faceSize / videoSize > 0.35;
-
-                const centerX = box.x + box.width / 2;
-                const centerY = box.y + box.height / 2;
-                const isCentered = Math.abs(centerX - video.videoWidth / 2) < video.videoWidth * 0.2 &&
-                                   Math.abs(centerY - video.videoHeight / 2) < video.videoHeight * 0.2;
-                
-                const highConfidence = detection.detection.score > 0.8;
-
-                if (!highConfidence) {
-                    feedbackMessage = 'គុណភាពរូបភាពទាប សូមបន្ថែមពន្លឺ។';
-                } else if (!isCloseEnough) {
-                    feedbackMessage = 'សូមចូលទៅជិតកាមេរ៉ាបន្តិច។';
-                } else if (!isCentered) {
-                    feedbackMessage = 'សូមដាក់មុខរបស់អ្នកឱ្យចំកណ្តាល។';
-                } else if (!neutral && !happy) {
-                    feedbackMessage = 'សូមរក្សាទឹកមុខធម្មតា។';
-                } else {
-                    allConditionsMet = true;
-                    feedbackMessage = `ស្ទើរតែរួចរាល់... រក្សាទីតាំងនេះ (${stableFramesCount}/4)`;
-                }
-            }
-
-            if (allConditionsMet) {
-                stableFramesCount++;
-                faceStatus.textContent = feedbackMessage;
-                faceStatus.classList.remove('text-red-500');
-                faceStatus.classList.add('text-green-500');
-                videoWrapper.classList.add('ready');
-
-                if (stableFramesCount >= 4) {
-                    triggerAutomaticCapture();
-                }
-            } else {
-                stableFramesCount = 0;
-                faceStatus.textContent = feedbackMessage;
-                faceStatus.classList.add('text-red-500');
-                faceStatus.classList.remove('text-green-500');
-                videoWrapper.classList.remove('ready');
-            }
-        }, 400); // OPTIMIZED: slightly faster interval
+      }, 350);
     }
-    
+
+    function captureFace() {
+      const ctx = captureCanvas.getContext('2d');
+      const size = 512;
+      captureCanvas.width = size;
+      captureCanvas.height = size;
+      ctx.translate(size, 0); ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, size, size);
+      photoPreview.src = captureCanvas.toDataURL('image/jpeg', 0.9);
+      stopCamera();
+      videoWrapper.classList.add('hidden');
+      photoPreview.classList.remove('hidden');
+      uploadBtn.classList.remove('hidden');
+      retakeBtn.classList.remove('hidden');
+      faceStatus.classList.add('hidden');
+      subtitle.textContent = "សូមបញ្ជាក់រូបភាពរបស់អ្នក";
+    }
+
     function stopCamera() {
-        if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
-        }
-        clearInterval(faceApiInterval);
-        videoWrapper.classList.remove('ready');
-    }
-    
-    function triggerAutomaticCapture() {
-        const context = captureCanvas.getContext('2d');
-        const size = 512;
-        captureCanvas.width = size;
-        captureCanvas.height = size;
-        context.translate(size, 0);
-        context.scale(-1, 1);
-
-        let sx, sy, sWidth, sHeight;
-        const videoRatio = video.videoWidth / video.videoHeight;
-        const canvasRatio = 1;
-
-        if (videoRatio > canvasRatio) {
-            sHeight = video.videoHeight;
-            sWidth = sHeight * canvasRatio;
-            sx = (video.videoWidth - sWidth) / 2;
-            sy = 0;
-        } else {
-            sWidth = video.videoWidth;
-            sHeight = sWidth / canvasRatio;
-            sx = 0;
-            sy = (video.videoHeight - sHeight) / 2;
-        }
-        
-        context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
-        
-        photoPreview.src = captureCanvas.toDataURL('image/jpeg');
-
-        stopCamera();
-        
-        video.parentElement.classList.add('hidden');
-        photoPreview.classList.remove('hidden');
-        uploadBtn.classList.remove('hidden');
-        retakeBtn.classList.remove('hidden');
-        faceStatus.classList.add('hidden');
-        subtitle.textContent = "បញ្ជាក់រូបភាពរបស់អ្នក រួចចុចបញ្ជូន";
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+      clearInterval(faceApiInterval);
     }
 
-    backBtn.addEventListener('click', () => {
-        const loadingOverlay = document.getElementById('loading-state');
-        const loadingText = loadingOverlay.querySelector('p');
+    uploadBtn.onclick = async () => {
+      const id = choicesInstance.getValue(true);
+      const s = studentsData.find(x => x[0] == id);
+      const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+      uploadBtn.textContent = "កំពុងផ្ញើ...";
+      uploadBtn.disabled = true;
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ id: s[0], name: s[1], class: s[2], imageData }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+        const r = await res.json();
+        if (r.status === 'success') {
+          alert("✅ បញ្ជូនជោគជ័យ!");
+          location.reload();
+        } else throw new Error(r.message);
+      } catch (e) {
+        alert("មានបញ្ហាក្នុងការបញ្ជូនរូបភាព។");
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "បញ្ជូនរូបភាព";
+      }
+    };
 
-        loadingText.style.display = 'none';
-        loadingOverlay.style.display = 'flex';
-        loadingOverlay.classList.remove('opacity-0');
+    retakeBtn.onclick = async () => {
+      photoPreview.classList.add('hidden');
+      uploadBtn.classList.add('hidden');
+      retakeBtn.classList.add('hidden');
+      videoWrapper.classList.remove('hidden');
+      faceStatus.classList.remove('hidden');
+      stableFrames = 0;
+      await startCamera();
+    };
 
-        stopCamera();
-
-        setTimeout(() => {
-            cameraSection.classList.add('hidden');
-            selectionArea.classList.remove('hidden');
-            subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នកដើម្បីចាប់ផ្តើម";
-            backBtn.classList.add('hidden');
-
-            photoPreview.classList.add('hidden');
-            uploadBtn.classList.add('hidden');
-            retakeBtn.classList.add('hidden');
-            video.parentElement.classList.remove('hidden');
-            
-            choicesInstance.setChoiceByValue('');
-            studentClassWrapper.classList.add('hidden');
-            classPlaceholder.classList.remove('hidden');
-            
-            loadingOverlay.classList.add('opacity-0');
-            setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-                loadingText.style.display = 'block';
-            }, 300);
-
-        }, 500);
-    });
-
-    retakeBtn.addEventListener('click', async () => {
-        photoPreview.classList.add('hidden');
-        uploadBtn.classList.add('hidden');
-        retakeBtn.classList.add('hidden');
-        video.parentElement.classList.remove('hidden');
-        faceStatus.classList.remove('hidden');
-        await startCamera(); 
-    });
-    
-    uploadBtn.addEventListener('click', async () => {
-        const studentId = choicesInstance.getValue(true);
-        if (!studentId) {
-            showMessage("សូមជ្រើសរើសសិស្សជាមុនសិន។", "error");
-            return;
-        }
-        const student = studentsData.find(s => s[0].toString() === studentId.toString());
-
-        uploadBtn.disabled = true;
-        retakeBtn.disabled = true;
-        uploadText.classList.add('hidden');
-        uploadLoader.classList.remove('hidden');
-        choicesInstance.disable();
-        
-        const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-        const payload = { id: student[0], name: student[1], class: student[2], imageData: imageData };
-
-        try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            });
-            const result = await response.json();
-            if (result.status === 'success') {
-                showMessage(`ជោគជ័យ! រូបភាពសម្រាប់ ${student[1]} ត្រូវបានបញ្ជូនចូលទៅ Folder.`);
-                 setTimeout(() => location.reload(), 2500);
-            } else {
-                throw new Error(result.message || 'Unknown error from server');
-            }
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            showMessage(`មានបញ្ហាក្នុងការបញ្ជូនរូបភាព៖ ${error.message}`, "error");
-            uploadBtn.disabled = false;
-            retakeBtn.disabled = false;
-            uploadText.classList.remove('hidden');
-            uploadLoader.classList.add('hidden');
-            choicesInstance.enable();
-        }
+    // ⏸ Pause camera when page is hidden (save battery)
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopCamera();
     });
 
     window.onload = async () => {
-        const loadingLogo = document.getElementById('loading-logo');
-        const logoSrc = loadingLogo.getAttribute('src');
-        if (logoSrc && logoSrc !== '') {
-            loadingLogo.style.display = 'block';
-        }
-
-        initializeChoices();
-        await loadModels();
-        fetchStudents();
+      initChoices();
+      await loadModels();
+      await fetchStudents();
+      loadingState.style.display = 'none';
+      studentSelect.addEventListener('change', async e => {
+        if (e.detail.value) await startCamera();
+      });
     };
-</script>
-
+  </script>
 </body>
 </html>
+
 
