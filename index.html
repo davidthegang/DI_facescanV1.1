@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
@@ -34,12 +34,20 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
-        video, canvas { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
         .video-container { 
             position: relative; 
             border-radius: 50%; 
             overflow: hidden; 
-            border: 5px solid #334155; /* Slate 700 */
+            border: 5px solid transparent; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
@@ -64,7 +72,6 @@
             50% { top: 100%; }
             100% { top: 0%; }
         }
-        /* Choices.js Dark Theme */
         .choices { margin-bottom: 0; }
         .choices__inner { 
             background-color: #1e293b; border: 1px solid #475569; border-radius: 12px;
@@ -74,13 +81,12 @@
         .choices__item--choice { color: #000000; }
         .choices__item--choice.is-highlighted { background-color: #334155; }
         .choices__placeholder { color: #ffffff; }
-        /* Modal Style */
         .modal {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #1e293b; /* Slate 800 */
+            background: #a5b0c2; /* Slate 800 */
             border: 1px solid #475569; /* Slate 600 */
         }
         .khmer-title {
@@ -95,26 +101,32 @@
         <p class="text-slate-300 text-lg">កំពុងទាញយកទិន្នន័យ...</p>
     </div>
 
-    <div class="container w-full max-w-md p-6 main-card">
+    <div class="container w-full max-w-md p-6 main-card relative">
+        <!-- ADDED: Back Button -->
+        <button id="back-btn" class="hidden absolute top-16 left-4 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110 z-20" title="Back to Selection">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+
         <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-        <p id="subtitle" class="text-center mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+        <p id="subtitle" class="text-center text-slate-200 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
 
         <div id="selection-area" class="mb-5">
             <select id="student-select"></select>
         </div>
 
         <div id="camera-section" class="hidden flex flex-col items-center space-y-4">
-            <div id="video-wrapper" class="video-container w-64 h-64 bg-slate-700">
+            <div id="video-wrapper" class="video-container w-full max-w-sm mx-auto aspect-square">
                 <video id="video" autoplay muted playsinline></video>
                 <div class="scanner-line"></div>
-                <button id="switch-camera-btn" class="absolute bottom-3 right-3 w-12 h-12 bg-black bg-opacity-40 rounded-full flex items-center justify-center text-white hover:bg-opacity-60 transition transform hover:scale-110" title="Switch Camera">
-                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.691v4.992h-4.992m0 0l-3.182-3.182a8.25 8.25 0 0111.667 0l3.182 3.182" />
-                    </svg>
-                </button>
             </div>
+            
+            <button id="switch-camera-btn" class="hidden w-14 h-14 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110" title="Switch Camera">
+                <i class="fa-solid fa-camera-rotate text-2xl"></i>
+            </button>
             <canvas id="capture-canvas" class="hidden"></canvas>
-            <img id="photo-preview" class="hidden w-64 h-64 rounded-full border-4 border-green-400 object-cover shadow-lg">
+            <img id="photo-preview" class="hidden w-full max-w-sm mx-auto aspect-square rounded-full border-4 border-green-400 object-cover shadow-lg">
             <p id="face-status" class="text-center text-sm h-5 font-semibold text-slate-400"></p>
             <div class="flex flex-col w-full space-y-3">
                 <button id="upload-btn" class="hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg">
@@ -127,7 +139,6 @@
         </div>
     </div>
     
-    <!-- Custom Modal -->
     <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal">
       <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-2xl text-center">
         <div id="modal-icon" class="w-16 h-16 mx-auto mb-4"></div>
@@ -152,6 +163,7 @@
     const subtitle = document.getElementById('subtitle');
     const loadingState = document.getElementById('loading-state');
     const switchCameraBtn = document.getElementById('switch-camera-btn');
+    const backBtn = document.getElementById('back-btn'); // ADDED
     const modal = document.getElementById('modal');
     const modalIcon = document.getElementById('modal-icon');
     const modalMessage = document.getElementById('modal-message');
@@ -210,7 +222,9 @@
       subtitle.textContent = "កំពុងបើកកាមេរ៉ា...";
       cameraSection.classList.remove('hidden');
       document.getElementById('selection-area').classList.add('hidden');
-      stopCamera(); // Stop any existing stream before starting a new one
+      switchCameraBtn.classList.remove('hidden');
+      backBtn.classList.remove('hidden'); // ADDED: Show back button
+      stopCamera(); 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: 640, height: 480 } });
         currentStream = stream;
@@ -257,12 +271,12 @@
       
       let sx, sy, sWidth, sHeight;
       const videoRatio = video.videoWidth / video.videoHeight;
-      if (videoRatio > 1) { // Landscape video
+      if (videoRatio > 1) { 
           sHeight = video.videoHeight;
           sWidth = sHeight;
           sx = (video.videoWidth - sWidth) / 2;
           sy = 0;
-      } else { // Portrait video
+      } else {
           sWidth = video.videoWidth;
           sHeight = sWidth;
           sx = 0;
@@ -272,6 +286,7 @@
 
       photoPreview.src = captureCanvas.toDataURL('image/jpeg', 0.9);
       stopCamera();
+      switchCameraBtn.classList.add('hidden');
       videoWrapper.classList.add('hidden');
       photoPreview.classList.remove('hidden');
       uploadBtn.classList.remove('hidden');
@@ -288,6 +303,8 @@
     function resetToSelection() {
         stopCamera();
         cameraSection.classList.add('hidden');
+        switchCameraBtn.classList.add('hidden');
+        backBtn.classList.add('hidden'); // ADDED: Hide back button
         photoPreview.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
@@ -296,7 +313,7 @@
         subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
         choicesInstance.clearInput();
         choicesInstance.clearStore();
-        fetchStudents(); // Re-fetch to clear selection properly
+        fetchStudents();
     }
     
     uploadBtn.onclick = async () => {
@@ -327,6 +344,8 @@
       retakeBtn.classList.add('hidden');
       videoWrapper.classList.remove('hidden');
       faceStatus.classList.remove('hidden');
+      switchCameraBtn.classList.remove('hidden');
+      backBtn.classList.remove('hidden'); // ADDED: Show back button
       stableFrames = 0;
       startCamera(currentFacingMode);
     };
@@ -334,6 +353,11 @@
     switchCameraBtn.onclick = () => {
         const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
         startCamera(newFacingMode);
+    };
+
+    // ADDED: Back button event listener
+    backBtn.onclick = () => {
+        resetToSelection();
     };
 
     document.addEventListener("visibilitychange", () => {
@@ -346,7 +370,7 @@
       await fetchStudents();
       loadingState.style.display = 'none';
       studentSelect.addEventListener('change', async e => {
-        if (e.detail.value) await startCamera('user'); // Default to front camera on new selection
+        if (e.detail.value) await startCamera('user');
       });
     };
   </script>
