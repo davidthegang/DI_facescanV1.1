@@ -1,73 +1,136 @@
 <!DOCTYPE html>
 <html lang="km">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Face Scan Digital Industry</title>
-  <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
+    <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Kantumruy Pro', sans-serif;
-      background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    video, canvas { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-    .video-container { position: relative; border-radius: 50%; overflow: hidden; border: 5px solid #e5e7eb; transition: .3s; }
-    .video-container.ready { border-color: #22c55e; box-shadow: 0 0 20px rgba(34,197,94,0.5); }
-    .loader {
-      border: 3px solid #fff; border-top: 3px solid #6b21a8; border-radius: 50%;
-      width: 20px; height: 20px; animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-  </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow: rgba(167, 139, 250, 0.5); /* A softer violet glow */
+        }
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background: #0f172a; /* Slate 900 */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e2e8f0; /* Slate 200 */
+        }
+        .main-card {
+            background: rgba(30, 41, 59, 0.7); /* Slate 800 with transparency */
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        video, canvas { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .video-container { 
+            position: relative; 
+            border-radius: 50%; 
+            overflow: hidden; 
+            border: 5px solid #334155; /* Slate 700 */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .video-container.ready { 
+            border-color: #4ade80; /* Green 400 */
+            box-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
+        }
+        .scanner-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #4ade80, transparent);
+            box-shadow: 0 0 10px #4ade80;
+            animation: scan 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .video-container.ready .scanner-line { opacity: 1; }
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        /* Choices.js Dark Theme */
+        .choices { margin-bottom: 0; }
+        .choices__inner { 
+            background-color: #1e293b; border: 1px solid #475569; border-radius: 12px;
+            padding: 10px 15px; font-size: 1rem; color: #e2e8f0; 
+        }
+        .choices__list--dropdown { background-color: #1e293b; border-color: #475569; border-radius: 12px; }
+        .choices__item--choice { color: #cbd5e1; }
+        .choices__item--choice.is-highlighted { background-color: #334155; }
+        .choices__placeholder { color: #94a3b8; }
+        /* Modal Style */
+        .modal {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1e293b; /* Slate 800 */
+            border: 1px solid #475569; /* Slate 600 */
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100">
-  <div id="loading-state" class="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-50">
-    <img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 animate-pulse">
-    <p class="text-white text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p>
-  </div>
-
-  <div class="container w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl relative">
-    <h1 class="text-center text-2xl font-bold mb-2">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-    <p id="subtitle" class="text-center text-gray-500 mb-4">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
-
-    <!-- Selection -->
-    <div id="selection-area" class="mb-5">
-      <select id="student-select"></select>
+<body class="bg-slate-900">
+    <div id="loading-state" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50 transition-opacity duration-500">
+        <img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
+        <p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p>
     </div>
 
-    <!-- Camera -->
-    <div id="camera-section" class="hidden flex flex-col items-center space-y-3">
-      <div id="video-wrapper" class="video-container w-64 h-64 bg-gray-200 mb-3">
-        <video id="video" autoplay muted playsinline></video>
-        <canvas id="overlay"></canvas>
-      </div>
-      <canvas id="capture-canvas" class="hidden"></canvas>
-      <img id="photo-preview" class="hidden w-64 h-64 rounded-full border-4 border-green-500 object-cover">
-      <p id="face-status" class="text-center text-sm h-5 font-semibold"></p>
-      <div class="flex flex-col w-full space-y-2">
-        <button id="upload-btn" class="hidden w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
-          បញ្ជូនរូបភាព
-        </button>
-        <button id="retake-btn" class="hidden w-full bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition">
-          ថតម្តងទៀត
-        </button>
+    <div class="container w-full max-w-md p-6 main-card">
+        <h1 class="text-center text-2xl font-bold mb-2 text-white">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
+        <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+
+        <div id="selection-area" class="mb-5">
+            <select id="student-select"></select>
+        </div>
+
+        <div id="camera-section" class="hidden flex flex-col items-center space-y-4">
+            <div id="video-wrapper" class="video-container w-64 h-64 bg-slate-700">
+                <video id="video" autoplay muted playsinline></video>
+                <div class="scanner-line"></div>
+            </div>
+            <canvas id="capture-canvas" class="hidden"></canvas>
+            <img id="photo-preview" class="hidden w-64 h-64 rounded-full border-4 border-green-400 object-cover shadow-lg">
+            <p id="face-status" class="text-center text-sm h-5 font-semibold text-slate-400"></p>
+            <div class="flex flex-col w-full space-y-3">
+                <button id="upload-btn" class="hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg">
+                    បញ្ជូនរូបភាព
+                </button>
+                <button id="retake-btn" class="hidden w-full bg-slate-600 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">
+                    ថតម្តងទៀត
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Modal -->
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal">
+      <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-2xl text-center">
+        <div id="modal-icon" class="w-16 h-16 mx-auto mb-4"></div>
+        <p id="modal-message" class="text-lg font-semibold text-white mb-6"></p>
+        <button id="modal-close-btn" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">យល់ព្រម</button>
       </div>
     </div>
-  </div>
+
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9mHDxed9qEJZl7JP0KifDmQKcZqGStL1zqLBJpJ-qYD6pqywHCkvhGfaoXXbpQgKq/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiFJXheTXxY9HfInlubOHVYI0ur5iG5ODweXc-tkoKftL1ykftF86S6QPTxW_zyS3A/exec';
+    // DOM Elements
     const studentSelect = document.getElementById('student-select');
     const video = document.getElementById('video');
     const captureCanvas = document.getElementById('capture-canvas');
@@ -79,17 +142,35 @@
     const faceStatus = document.getElementById('face-status');
     const subtitle = document.getElementById('subtitle');
     const loadingState = document.getElementById('loading-state');
+    const modal = document.getElementById('modal');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalMessage = document.getElementById('modal-message');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    const icons = {
+        success: `<svg class="w-full h-full text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+        error: `<svg class="w-full h-full text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+        loading: `<div class="w-16 h-16 border-4 border-slate-500 border-t-indigo-500 rounded-full animate-spin"></div>`
+    };
 
     let studentsData = [], currentStream, faceApiInterval, stableFrames = 0, choicesInstance;
+    
+    function showModal(type, message) {
+        modalIcon.innerHTML = icons[type];
+        modalMessage.textContent = message;
+        modal.classList.remove('hidden');
+        if (type === 'loading') {
+            modalCloseBtn.classList.add('hidden');
+        } else {
+            modalCloseBtn.classList.remove('hidden');
+        }
+    }
+    modalCloseBtn.onclick = () => modal.classList.add('hidden');
 
-    // 🧠 Initialize dropdown
     function initChoices() {
       choicesInstance = new Choices(studentSelect, {
-        searchEnabled: true,
-        placeholder: true,
-        placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
-        noResultsText: 'រកមិនឃើញទិន្នន័យ',
-        itemSelectText: '',
+        searchEnabled: true, placeholder: true, placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
+        noResultsText: 'រកមិនឃើញទិន្នន័យ', itemSelectText: '', searchPlaceholderValue: 'ស្វែងរក...'
       });
     }
 
@@ -110,23 +191,25 @@
         const options = studentsData.map(s => ({ value: s[0], label: `${s[0]} - ${s[1]}` }));
         choicesInstance.setChoices(options, 'value', 'label', false);
       } catch (e) {
-        alert('មិនអាចទាញយកទិន្នន័យសិស្សបានទេ');
+        showModal('error', 'មិនអាចទាញយកទិន្នន័យសិស្សបានទេ។');
       }
     }
 
     async function startCamera() {
       subtitle.textContent = "កំពុងបើកកាមេរ៉ា...";
       cameraSection.classList.remove('hidden');
+      document.getElementById('selection-area').classList.add('hidden');
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
         currentStream = stream;
         video.srcObject = stream;
         video.onloadedmetadata = () => {
-          subtitle.textContent = "សូមចាំប្រព័ន្ធវិភាគមុខ...";
+          subtitle.textContent = "សូមដាក់មុខរបស់អ្នកឱ្យចំកណ្តាល";
           detectFace();
         };
       } catch (err) {
-        alert('សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា');
+        showModal('error', 'សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា');
+        resetToSelection();
       }
     }
 
@@ -135,28 +218,49 @@
       clearInterval(faceApiInterval);
       faceApiInterval = setInterval(async () => {
         const result = await faceapi.detectSingleFace(video, options).withFaceExpressions();
+        let allGood = false;
+
         if (result && result.detection.score > 0.8) {
+          allGood = true;
           stableFrames++;
-          faceStatus.textContent = `កំពុងចាប់ផ្ទៃមុខ... (${stableFrames}/4)`;
-          faceStatus.classList.replace('text-red-500', 'text-green-500');
+          faceStatus.textContent = `ល្អណាស់! (${stableFrames}/4)`;
+          faceStatus.classList.remove('text-slate-400');
+          faceStatus.classList.add('text-green-400');
           videoWrapper.classList.add('ready');
           if (stableFrames >= 4) captureFace();
         } else {
           stableFrames = 0;
           faceStatus.textContent = "សូមដាក់មុខចំកណ្តាលកាមេរ៉ា";
-          faceStatus.classList.add('text-red-500');
+          faceStatus.classList.remove('text-green-400');
+          faceStatus.classList.add('text-slate-400');
           videoWrapper.classList.remove('ready');
         }
-      }, 350);
+      }, 400);
     }
 
     function captureFace() {
+      clearInterval(faceApiInterval);
       const ctx = captureCanvas.getContext('2d');
       const size = 512;
       captureCanvas.width = size;
       captureCanvas.height = size;
       ctx.translate(size, 0); ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, size, size);
+      
+      let sx, sy, sWidth, sHeight;
+      const videoRatio = video.videoWidth / video.videoHeight;
+      if (videoRatio > 1) { // Landscape video
+          sHeight = video.videoHeight;
+          sWidth = sHeight;
+          sx = (video.videoWidth - sWidth) / 2;
+          sy = 0;
+      } else { // Portrait video
+          sWidth = video.videoWidth;
+          sHeight = sWidth;
+          sx = 0;
+          sy = (video.videoHeight - sHeight) / 2;
+      }
+      ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
+
       photoPreview.src = captureCanvas.toDataURL('image/jpeg', 0.9);
       stopCamera();
       videoWrapper.classList.add('hidden');
@@ -172,12 +276,26 @@
       clearInterval(faceApiInterval);
     }
 
+    function resetToSelection() {
+        stopCamera();
+        cameraSection.classList.add('hidden');
+        photoPreview.classList.add('hidden');
+        uploadBtn.classList.add('hidden');
+        retakeBtn.classList.add('hidden');
+        videoWrapper.classList.remove('hidden');
+        document.getElementById('selection-area').classList.remove('hidden');
+        subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
+        choicesInstance.clearInput();
+        choicesInstance.clearStore();
+        fetchStudents(); // Re-fetch to clear selection properly
+    }
+    
     uploadBtn.onclick = async () => {
       const id = choicesInstance.getValue(true);
       const s = studentsData.find(x => x[0] == id);
       const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-      uploadBtn.textContent = "កំពុងផ្ញើ...";
-      uploadBtn.disabled = true;
+      showModal('loading', 'កំពុងបញ្ជូន...');
+
       try {
         const res = await fetch(SCRIPT_URL, {
           method: 'POST',
@@ -186,13 +304,11 @@
         });
         const r = await res.json();
         if (r.status === 'success') {
-          alert("✅ បញ្ជូនជោគជ័យ!");
-          location.reload();
+          showModal('success', "បញ្ជូនជោគជ័យ!");
+          modalCloseBtn.onclick = () => location.reload();
         } else throw new Error(r.message);
       } catch (e) {
-        alert("មានបញ្ហាក្នុងការបញ្ជូនរូបភាព។");
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = "បញ្ជូនរូបភាព";
+        showModal('error', "មានបញ្ហាក្នុងការបញ្ជូនរូបភាព។");
       }
     };
 
@@ -203,10 +319,9 @@
       videoWrapper.classList.remove('hidden');
       faceStatus.classList.remove('hidden');
       stableFrames = 0;
-      await startCamera();
+      startCamera();
     };
 
-    // ⏸ Pause camera when page is hidden (save battery)
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) stopCamera();
     });
@@ -223,5 +338,4 @@
   </script>
 </body>
 </html>
-
 
