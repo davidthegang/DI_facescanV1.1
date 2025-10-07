@@ -16,19 +16,19 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Moul&display=swap');
         :root {
-            --primary-glow: rgba(167, 139, 250, 0.5); /* A softer violet glow */
+            --primary-glow: rgba(167, 139, 250, 0.5);
         }
         body {
             font-family: 'Kantumruy Pro', sans-serif;
-            background: #0f172a; /* Slate 900 */
+            background: #0f172a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #e2e8f0; /* Slate 200 */
+            color: #e2e8f0;
         }
         .main-card {
-            background: rgba(30, 41, 59, 0.7); /* Slate 800 with transparency */
+            background: rgba(30, 41, 59, 0.7);
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
@@ -52,7 +52,7 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
         .video-container.ready { 
-            border-color: #4ade80; /* Green 400 */
+            border-color: #4ade80;
             box-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
         }
         .scanner-line {
@@ -86,8 +86,8 @@
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #1e293b; /* Slate 800 */
-            border: 1px solid #475569; /* Slate 600 */
+            background: #1e293b;
+            border: 1px solid #475569;
         }
         .khmer-title {
             font-family: "Moul", serif;
@@ -102,7 +102,6 @@
     </div>
 
     <div class="container w-full max-w-md p-6 main-card relative">
-        <!-- ADDED: Back Button -->
         <button id="back-btn" class="hidden absolute top-6 left-6 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110 z-20" title="Back to Selection">
             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -165,7 +164,7 @@
     const subtitle = document.getElementById('subtitle');
     const loadingState = document.getElementById('loading-state');
     const switchCameraBtn = document.getElementById('switch-camera-btn');
-    const backBtn = document.getElementById('back-btn'); // ADDED
+    const backBtn = document.getElementById('back-btn');
     const modal = document.getElementById('modal');
     const modalIcon = document.getElementById('modal-icon');
     const modalMessage = document.getElementById('modal-message');
@@ -225,7 +224,7 @@
       cameraSection.classList.remove('hidden');
       document.getElementById('selection-area').classList.add('hidden');
       switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden'); // ADDED: Show back button
+      backBtn.classList.remove('hidden');
       stopCamera(); 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: 640, height: 480 } });
@@ -306,7 +305,7 @@
         stopCamera();
         cameraSection.classList.add('hidden');
         switchCameraBtn.classList.add('hidden');
-        backBtn.classList.add('hidden'); // ADDED: Hide back button
+        backBtn.classList.add('hidden');
         photoPreview.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
@@ -314,7 +313,7 @@
         document.getElementById('selection-area').classList.remove('hidden');
         subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
         choicesInstance.clearInput();
-        choicesInstance.setChoiceByValue(''); // Clear selection but don't clear all options
+        choicesInstance.setChoiceByValue('');
     }
     
     uploadBtn.onclick = async () => {
@@ -324,19 +323,25 @@
       showModal('loading', 'កំពុងបញ្ជូន...');
 
       try {
-        const res = await fetch(SCRIPT_URL, {
+        // MODIFIED: Construct URL with parameters
+        const url = new URL(SCRIPT_URL);
+        url.searchParams.append('id', s[0]);
+        url.searchParams.append('name', s[1]);
+        url.searchParams.append('class', s[2]);
+
+        const res = await fetch(url, {
           method: 'POST',
-          body: JSON.stringify({ id: s[0], name: s[1], class: s[2], imageData }),
+          body: imageData, // MODIFIED: Send only image data in body
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
+
         const r = await res.json();
         if (r.status === 'success') {
-          // MODIFIED: Updated success message
           showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
           modalCloseBtn.onclick = () => location.reload();
-        } else throw new Error(r.message);
+        } else throw new Error(r.message || "Unknown error from script");
       } catch (e) {
-        showModal('error', "មានបញ្ហាក្នុងការបញ្ជូនរូបភាព។");
+        showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
       }
     };
 
@@ -347,7 +352,7 @@
       videoWrapper.classList.remove('hidden');
       faceStatus.classList.remove('hidden');
       switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden'); // ADDED: Show back button
+      backBtn.classList.remove('hidden');
       stableFrames = 0;
       startCamera(currentFacingMode);
     };
@@ -357,7 +362,6 @@
         startCamera(newFacingMode);
     };
 
-    // ADDED: Back button event listener
     backBtn.onclick = () => {
         resetToSelection();
     };
