@@ -323,7 +323,6 @@
       showModal('loading', 'កំពុងបញ្ជូន...');
 
       try {
-        // MODIFIED: Construct URL with parameters
         const url = new URL(SCRIPT_URL);
         url.searchParams.append('id', s[0]);
         url.searchParams.append('name', s[1]);
@@ -331,7 +330,7 @@
 
         const res = await fetch(url, {
           method: 'POST',
-          body: imageData, // MODIFIED: Send only image data in body
+          body: imageData,
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
 
