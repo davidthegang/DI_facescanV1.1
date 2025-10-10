@@ -9,27 +9,26 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
-    <!-- MODIFIED: Using Font Awesome for the checkmark icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" xintegrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Moul&display=swap');
         :root {
-            --primary-glow: rgba(167, 139, 250, 0.5);
+            --primary-glow: rgba(167, 139, 250, 0.5); /* A softer violet glow */
         }
         body {
             font-family: 'Kantumruy Pro', sans-serif;
-            background: #0f172a;
+            background: #0f172a; /* Slate 900 */
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #e2e8f0;
+            color: #e2e8f0; /* Slate 200 */
         }
         .main-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.7); /* Slate 800 with transparency */
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
@@ -53,7 +52,7 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
         .video-container.ready { 
-            border-color: #4ade80;
+            border-color: #4ade80; /* Green 400 */
             box-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
         }
         .scanner-line {
@@ -79,29 +78,16 @@
             padding: 10px 15px; font-size: 1rem; color: #e2e8f0; 
         }
         .choices__list--dropdown { background-color: #1e293b; border-color: #475569; border-radius: 12px; }
-        .choices__item--choice { color: #cbd5e1; }
+        .choices__item--choice { color: #000000; }
         .choices__item--choice.is-highlighted { background-color: #334155; }
-        .choices__placeholder { color: #94a3b8; }
-
-        /* ADDED: Styles for completed items */
-        .choices__item--choice.choice-completed {
-            color: #4ade80 !important;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            opacity: 0.7; /* Make it slightly faded */
-        }
-        .choices__item--choice.is-highlighted.choice-completed {
-            background-color: #275235; /* Darker green highlight */
-        }
+        .choices__placeholder { color: #ffffff; }
         .modal {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #1e293b;
-            border: 1px solid #475569;
+            background: #a5b0c2; /* Slate 800 */
+            border: 1px solid #475569; /* Slate 600 */
         }
         .khmer-title {
             font-family: "Moul", serif;
@@ -109,21 +95,23 @@
     </style>
 </head>
 
+
 <body class="bg-slate-900">
     <div id="loading-state" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50 transition-opacity duration-500">
         <img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
-        <p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p>
+        <p class="text-slate-300 text-lg">កំពុងទាញយកទិន្នន័យ...</p>
     </div>
 
     <div class="container w-full max-w-md p-6 main-card relative">
-        <button id="back-btn" class="hidden absolute top-6 left-6 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110 z-20" title="Back to Selection">
+        <!-- ADDED: Back Button -->
+        <button id="back-btn" class="hidden absolute top-16 left-4 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110 z-20" title="Back to Selection">
             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
         </button>
 
         <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-        <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+        <p id="subtitle" class="text-center text-slate-200 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
 
         <div id="selection-area" class="mb-5">
             <select id="student-select"></select>
@@ -136,9 +124,7 @@
             </div>
             
             <button id="switch-camera-btn" class="hidden w-14 h-14 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110" title="Switch Camera">
-                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.691v4.992h-4.992m0 0l-3.182-3.182a8.25 8.25 0 0111.667 0l3.182 3.182" />
-                </svg>
+                <i class="fa-solid fa-camera-rotate text-2xl"></i>
             </button>
             <canvas id="capture-canvas" class="hidden"></canvas>
             <img id="photo-preview" class="hidden w-full max-w-sm mx-auto aspect-square rounded-full border-4 border-green-400 object-cover shadow-lg">
@@ -164,7 +150,7 @@
 
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzd3-yAkPasvrckFeHpkZOgfRROxOhhHqPSfEgbF5CvRrDhPaRHWzbbv2mPQm_xj61j_A/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiFJXheTXxY9HfInlubOHVYI0ur5iG5ODweXc-tkoKftL1ykftF86S6QPTxW_zyS3A/exec';
     // DOM Elements
     const studentSelect = document.getElementById('student-select');
     const video = document.getElementById('video');
@@ -178,7 +164,7 @@
     const subtitle = document.getElementById('subtitle');
     const loadingState = document.getElementById('loading-state');
     const switchCameraBtn = document.getElementById('switch-camera-btn');
-    const backBtn = document.getElementById('back-btn');
+    const backBtn = document.getElementById('back-btn'); // ADDED
     const modal = document.getElementById('modal');
     const modalIcon = document.getElementById('modal-icon');
     const modalMessage = document.getElementById('modal-message');
@@ -207,22 +193,7 @@
     function initChoices() {
       choicesInstance = new Choices(studentSelect, {
         searchEnabled: true, placeholder: true, placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
-        noResultsText: 'រកមិនឃើញទិន្នន័យ', itemSelectText: '', searchPlaceholderValue: 'ស្វែងរក...',
-        // ADDED: Template callback to add custom classes for completed items
-        callbackOnCreateTemplates: function(template) {
-            return {
-                choice: ({ classNames }, data) => {
-                    const extraClasses = data.customProperties && data.customProperties.hasImage ? 'choice-completed' : '';
-                    const checkIcon = data.customProperties && data.customProperties.hasImage ? '<i class="fas fa-check-circle ml-2"></i>' : '';
-                    
-                    return template(`
-                        <div class="${classNames.item} ${classNames.choice} ${extraClasses}" data-select-text="${this.config.itemSelectText}" data-choice data-id="${data.id}" data-value="${data.value}" ${data.disabled ? 'aria-disabled="true"' : ''}>
-                           <span>${data.label}</span> ${checkIcon}
-                        </div>
-                    `);
-                },
-            };
-        }
+        noResultsText: 'រកមិនឃើញទិន្នន័យ', itemSelectText: '', searchPlaceholderValue: 'ស្វែងរក...'
       });
     }
 
@@ -240,20 +211,13 @@
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
         studentsData = data.slice(1);
-        // MODIFIED: Create choice objects with custom properties and disabled flag
-        const options = studentsData.map(s => ({ 
-            value: s[0], 
-            label: `${s[0]} - ${s[1]}`,
-            disabled: s[3], // Disable the option if hasImage is true
-            customProperties: {
-                hasImage: s[3] 
-            }
-        }));
-        choicesInstance.setChoices(options, 'value', 'label', true); // Pass true to replace all choices
+        const options = studentsData.map(s => ({ value: s[0], label: `${s[0]} - ${s[1]}` }));
+        choicesInstance.setChoices(options, 'value', 'label', false);
       } catch (e) {
         showModal('error', 'មិនអាចទាញយកទិន្នន័យសិស្សបានទេ។');
       }
     }
+
 
     async function startCamera(facingMode = 'user') {
       currentFacingMode = facingMode;
@@ -261,7 +225,7 @@
       cameraSection.classList.remove('hidden');
       document.getElementById('selection-area').classList.add('hidden');
       switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden');
+      backBtn.classList.remove('hidden'); // ADDED: Show back button
       stopCamera(); 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: 640, height: 480 } });
@@ -342,7 +306,7 @@
         stopCamera();
         cameraSection.classList.add('hidden');
         switchCameraBtn.classList.add('hidden');
-        backBtn.classList.add('hidden');
+        backBtn.classList.add('hidden'); // ADDED: Hide back button
         photoPreview.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
@@ -350,40 +314,30 @@
         document.getElementById('selection-area').classList.remove('hidden');
         subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
         choicesInstance.clearInput();
-        choicesInstance.setChoiceByValue('');
+        choicesInstance.clearStore();
+        fetchStudents();
     }
     
     uploadBtn.onclick = async () => {
-      const selectedValue = choicesInstance.getValue(true);
-      // The script now sends an array where index 3 is the 'hasImage' boolean
-      const student = studentsData.find(s => s[0] == selectedValue);
-      if (!student) {
-        showModal('error', 'Could not find student data.');
-        return;
-      }
-
+      const id = choicesInstance.getValue(true);
+      const s = studentsData.find(x => x[0] == id);
       const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
       showModal('loading', 'កំពុងបញ្ជូន...');
 
-      try {
-        const url = new URL(SCRIPT_URL);
-        url.searchParams.append('id', student[0]);
-        url.searchParams.append('name', student[1]);
-        url.searchParams.append('class', student[2]);
 
-        const res = await fetch(url, {
+      try {
+        const res = await fetch(SCRIPT_URL, {
           method: 'POST',
-          body: imageData,
+          body: JSON.stringify({ id: s[0], name: s[1], class: s[2], imageData }),
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
-
         const r = await res.json();
         if (r.status === 'success') {
-          showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
+          showModal('success', "បញ្ជូនជោគជ័យ!");
           modalCloseBtn.onclick = () => location.reload();
-        } else throw new Error(r.message || "Unknown error from script");
+        } else throw new Error(r.message);
       } catch (e) {
-        showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
+        showModal('error', "មានបញ្ហាក្នុងការបញ្ជូនរូបភាព។");
       }
     };
 
@@ -394,7 +348,7 @@
       videoWrapper.classList.remove('hidden');
       faceStatus.classList.remove('hidden');
       switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden');
+      backBtn.classList.remove('hidden'); // ADDED: Show back button
       stableFrames = 0;
       startCamera(currentFacingMode);
     };
@@ -404,6 +358,7 @@
         startCamera(newFacingMode);
     };
 
+    // ADDED: Back button event listener
     backBtn.onclick = () => {
         resetToSelection();
     };
@@ -424,4 +379,3 @@
   </script>
 </body>
 </html>
-
