@@ -75,24 +75,25 @@
         }
         .choices { margin-bottom: 0; }
         .choices__inner { 
-            background-color: #1e2b3b; border: 1px solid #475569; border-radius: 12px;
+            background-color: #1e293b; border: 1px solid #475569; border-radius: 12px;
             padding: 10px 15px; font-size: 1rem; color: #e2e8f0; 
         }
         .choices__list--dropdown { background-color: #1e293b; border-color: #475569; border-radius: 12px; }
-        .choices__item--choice { color: #cbd5e1; } /* MODIFIED: Lighter color for readability */
+        .choices__item--choice { color: #cbd5e1; }
         .choices__item--choice.is-highlighted { background-color: #334155; }
         .choices__placeholder { color: #94a3b8; }
 
         /* ADDED: Styles for completed items */
         .choices__item--choice.choice-completed {
-            color: #4ade80 !important; /* Force green color */
+            color: #4ade80 !important;
             font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            opacity: 0.7; /* Make it slightly faded */
         }
         .choices__item--choice.is-highlighted.choice-completed {
-            background-color: #334155;
+            background-color: #275235; /* Darker green highlight */
         }
         .modal {
             background: rgba(15, 23, 42, 0.8);
@@ -212,7 +213,7 @@
             return {
                 choice: ({ classNames }, data) => {
                     const extraClasses = data.customProperties && data.customProperties.hasImage ? 'choice-completed' : '';
-                    const checkIcon = data.customProperties && data.customProperties.hasImage ? '<i class="fas fa-check-circle"></i>' : '';
+                    const checkIcon = data.customProperties && data.customProperties.hasImage ? '<i class="fas fa-check-circle ml-2"></i>' : '';
                     
                     return template(`
                         <div class="${classNames.item} ${classNames.choice} ${extraClasses}" data-select-text="${this.config.itemSelectText}" data-choice data-id="${data.id}" data-value="${data.value}" ${data.disabled ? 'aria-disabled="true"' : ''}>
@@ -239,15 +240,16 @@
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
         studentsData = data.slice(1);
-        // MODIFIED: Create choice objects with custom properties
+        // MODIFIED: Create choice objects with custom properties and disabled flag
         const options = studentsData.map(s => ({ 
             value: s[0], 
             label: `${s[0]} - ${s[1]}`,
+            disabled: s[3], // Disable the option if hasImage is true
             customProperties: {
-                hasImage: s[3] // The boolean flag from the script
+                hasImage: s[3] 
             }
         }));
-        choicesInstance.setChoices(options, 'value', 'label', false);
+        choicesInstance.setChoices(options, 'value', 'label', true); // Pass true to replace all choices
       } catch (e) {
         showModal('error', 'មិនអាចទាញយកទិន្នន័យសិស្សបានទេ។');
       }
@@ -352,24 +354,36 @@
     }
     
     uploadBtn.onclick = async () => {
-      const id = choicesInstance.getValue(true);
-      const s = studentsData.find(x => x[0] == id);
+      const selectedValue = choicesInstance.getValue(true);
+      // The script now sends an array where index 3 is the 'hasImage' boolean
+      const student = studentsData.find(s => s[0] == selectedValue);
+      if (!student) {
+        showModal('error', 'Could not find student data.');
+        return;
+      }
+
       const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
       showModal('loading', 'កំពុងបញ្ជូន...');
 
       try {
-        const res = await fetch(SCRIPT_URL, {
+        const url = new URL(SCRIPT_URL);
+        url.searchParams.append('id', student[0]);
+        url.searchParams.append('name', student[1]);
+        url.searchParams.append('class', student[2]);
+
+        const res = await fetch(url, {
           method: 'POST',
-          body: JSON.stringify({ id: s[0], name: s[1], class: s[2], imageData }),
+          body: imageData,
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
+
         const r = await res.json();
         if (r.status === 'success') {
-          showModal('success', "បញ្ជូនជោគជ័យ!");
+          showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
           modalCloseBtn.onclick = () => location.reload();
-        } else throw new Error(r.message);
+        } else throw new Error(r.message || "Unknown error from script");
       } catch (e) {
-        showModal('error', "មានបញ្ហាក្នុងការបញ្ជូនរូបភាព។");
+        showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
       }
     };
 
