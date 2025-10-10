@@ -78,20 +78,31 @@
             padding: 10px 15px; font-size: 1rem; color: #e2e8f0; 
         }
         .choices__list--dropdown { background-color: #1e293b; border-color: #475569; border-radius: 12px; }
-        .choices__item--choice { color: #000000; }
+        .choices__item--choice { color: #e2e8f0; } /* Default text color changed for dark mode */
         .choices__item--choice.is-highlighted { background-color: #334155; }
-        .choices__placeholder { color: #ffffff; }
+        .choices__placeholder { color: #94a3b8; } /* Lighter placeholder */
         .modal {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #a5b0c2; /* Slate 800 */
+            background: #1e293b; /* Slate 800 */
             border: 1px solid #475569; /* Slate 600 */
         }
         .khmer-title {
             font-family: "Moul", serif;
         }
+
+        /* --- NEW CSS FOR HIGHLIGHTING --- */
+        .choices__item--choice.has-uploaded {
+            color: #4ade80; /* Green 400 */
+            font-weight: 700; /* Bold */
+        }
+        .choices__list--dropdown .choices__item--choice.has-uploaded.is-highlighted {
+            background-color: #334155; /* Keep standard highlight color */
+            color: #86efac; /* A lighter green on hover */
+        }
+
     </style>
 </head>
 
@@ -103,7 +114,6 @@
     </div>
 
     <div class="container w-full max-w-md p-6 main-card relative">
-        <!-- ADDED: Back Button -->
         <button id="back-btn" class="hidden absolute top-16 left-4 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110 z-20" title="Back to Selection">
             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -164,7 +174,7 @@
     const subtitle = document.getElementById('subtitle');
     const loadingState = document.getElementById('loading-state');
     const switchCameraBtn = document.getElementById('switch-camera-btn');
-    const backBtn = document.getElementById('back-btn'); // ADDED
+    const backBtn = document.getElementById('back-btn');
     const modal = document.getElementById('modal');
     const modalIcon = document.getElementById('modal-icon');
     const modalMessage = document.getElementById('modal-message');
@@ -190,12 +200,43 @@
     }
     modalCloseBtn.onclick = () => modal.classList.add('hidden');
 
+    /**
+     * --- MODIFIED FUNCTION ---
+     * Initializes Choices.js with a callback to add a custom class
+     * for users who have already uploaded a photo.
+     */
     function initChoices() {
-      choicesInstance = new Choices(studentSelect, {
-        searchEnabled: true, placeholder: true, placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
-        noResultsText: 'រកមិនឃើញទិន្នន័យ', itemSelectText: '', searchPlaceholderValue: 'ស្វែងរក...'
-      });
+        choicesInstance = new Choices(studentSelect, {
+            searchEnabled: true,
+            placeholder: true,
+            placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
+            noResultsText: 'រកមិនឃើញទិន្នន័យ',
+            itemSelectText: '',
+            searchPlaceholderValue: 'ស្វែងរក...',
+            // This callback allows us to customize the HTML for each dropdown item
+            callbackOnCreateTemplates: function (template) {
+                return {
+                    // This defines the template for an item in the dropdown list
+                    choice: (classNames, data) => {
+                        let newClassNames = `${classNames.item} ${classNames.choice}`;
+                        // If our custom property `hasUploaded` is true, add the 'has-uploaded' class
+                        if (data.customProperties && data.customProperties.hasUploaded) {
+                            newClassNames += ' has-uploaded';
+                        }
+                        // Return the final HTML for the choice element
+                        return template(`
+                            <div class="${newClassNames}" data-select-text="${this.config.itemSelectText}" data-choice data-id="${data.id}" data-value="${data.value}" ${
+                                data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
+                            } id="${data.elementId}">
+                                ${data.label}
+                            </div>
+                        `);
+                    },
+                };
+            },
+        });
     }
+
 
     async function loadModels() {
       const MODEL_URL = './weights';
@@ -206,16 +247,31 @@
       ]);
     }
 
+    /**
+     * --- MODIFIED FUNCTION ---
+     * Fetches student data and populates the Choices.js dropdown,
+     * including the custom property for upload status.
+     */
     async function fetchStudents() {
-      try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        studentsData = data.slice(1);
-        const options = studentsData.map(s => ({ value: s[0], label: `${s[0]} - ${s[1]}` }));
-        choicesInstance.setChoices(options, 'value', 'label', false);
-      } catch (e) {
-        showModal('error', 'មិនអាចទាញយកទិន្នន័យសិស្សបានទេ។');
-      }
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            studentsData = data.slice(1); // Remove header row
+
+            // The new data has 4 columns: [ID, Name, Class, HasUploaded]
+            const options = studentsData.map(student => ({
+                value: student[0], // ID
+                label: `${student[0]} - ${student[1]}`, // e.g., "250 - លន ដាវីត"
+                customProperties: {
+                    hasUploaded: student[3] // This will be true or false from the script
+                }
+            }));
+            
+            // Set the choices with the new options and custom properties
+            choicesInstance.setChoices(options, 'value', 'label', true);
+        } catch (e) {
+            showModal('error', 'មិនអាចទាញយកទិន្នន័យសិស្សបានទេ។');
+        }
     }
 
 
@@ -225,7 +281,7 @@
       cameraSection.classList.remove('hidden');
       document.getElementById('selection-area').classList.add('hidden');
       switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden'); // ADDED: Show back button
+      backBtn.classList.remove('hidden');
       stopCamera(); 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: 640, height: 480 } });
@@ -306,7 +362,7 @@
         stopCamera();
         cameraSection.classList.add('hidden');
         switchCameraBtn.classList.add('hidden');
-        backBtn.classList.add('hidden'); // ADDED: Hide back button
+        backBtn.classList.add('hidden');
         photoPreview.classList.add('hidden');
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
@@ -315,7 +371,7 @@
         subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
         choicesInstance.clearInput();
         choicesInstance.clearStore();
-        fetchStudents();
+        fetchStudents(); // Re-fetch to get latest upload statuses
     }
     
     uploadBtn.onclick = async () => {
@@ -323,7 +379,6 @@
       const s = studentsData.find(x => x[0] == id);
       const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
       showModal('loading', 'កំពុងបញ្ជូន...');
-
 
       try {
         const res = await fetch(SCRIPT_URL, {
@@ -334,6 +389,7 @@
         const r = await res.json();
         if (r.status === 'success') {
           showModal('success', "បញ្ជូនជោគជ័យ!");
+          // Reload the page to clear the cache and show the new green highlight
           modalCloseBtn.onclick = () => location.reload();
         } else throw new Error(r.message);
       } catch (e) {
@@ -348,7 +404,7 @@
       videoWrapper.classList.remove('hidden');
       faceStatus.classList.remove('hidden');
       switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden'); // ADDED: Show back button
+      backBtn.classList.remove('hidden');
       stableFrames = 0;
       startCamera(currentFacingMode);
     };
@@ -358,7 +414,6 @@
         startCamera(newFacingMode);
     };
 
-    // ADDED: Back button event listener
     backBtn.onclick = () => {
         resetToSelection();
     };
@@ -368,9 +423,9 @@
     });
 
     window.onload = async () => {
-      initChoices();
+      initChoices(); // Initialize with the new template callback
       await loadModels();
-      await fetchStudents();
+      await fetchStudents(); // Fetch and populate with custom properties
       loadingState.style.display = 'none';
       studentSelect.addEventListener('change', async e => {
         if (e.detail.value) await startCamera('user');
