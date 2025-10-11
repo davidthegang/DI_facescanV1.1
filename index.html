@@ -9,16 +9,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
-    <!-- ADDED: Using Font Awesome for the checkmark icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" xintegrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Moul&display=swap');
-        :root {
-            --primary-glow: rgba(167, 139, 250, 0.5);
-        }
         body {
             font-family: 'Kantumruy Pro', sans-serif;
             background: #0f172a;
@@ -82,8 +78,6 @@
         .choices__item--choice { color: #cbd5e1; }
         .choices__item--choice.is-highlighted { background-color: #334155; }
         .choices__placeholder { color: #94a3b8; }
-
-        /* ADDED: Styles for completed items */
         .choices__item--choice.choice-completed {
             color: #4ade80 !important;
             font-weight: 600;
@@ -167,7 +161,7 @@
 
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAldWNZYFLakjCzRTOyWQL2eoALOJ1L0qX0e5KPm3mDsZvnA7O2MDylnKUH8AFHl7_/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz53cMjgR7YKmKpcHsDr525b2TYUUfVu9cWUhUafEUnymH4uPjsRABuELDnia84-aHm/exec';
     // DOM Elements
     const studentSelect = document.getElementById('student-select');
     const video = document.getElementById('video');
@@ -352,49 +346,46 @@
         choicesInstance.setChoiceByValue('');
     }
     
-    // MODIFIED: Switched to a more robust JSON payload method
     uploadBtn.onclick = async () => {
-      const selectedValue = choicesInstance.getValue(true);
-      const student = studentsData.find(s => s[0] == selectedValue);
-      if (!student) {
-        showModal('error', 'Could not find student data.');
-        return;
-      }
-
-      const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-      showModal('loading', 'កំពុងបញ្ជូន...');
-
-      const payload = {
-          id: student[0],
-          name: student[1],
-          class: student[2],
-          imageData: imageData
-      };
-
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          redirect: 'follow'
-        });
-
-        // It's safer to check if the response is ok before trying to parse JSON
-        if (!res.ok) {
-            throw new Error(`Server responded with status: ${res.status}`);
+        const selectedValue = choicesInstance.getValue(true);
+        const student = studentsData.find(s => s[0] == selectedValue);
+        if (!student) {
+            showModal('error', 'Could not find student data.');
+            return;
         }
 
-        const r = await res.json();
-        if (r.status === 'success') {
-          showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
-          modalCloseBtn.onclick = () => location.reload();
-        } else {
-          // Use the message from the script if available
-          throw new Error(r.message || "An unknown error occurred on the server.");
+        const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+        showModal('loading', 'កំពុងបញ្ជូន...');
+
+        const payload = {
+            id: student[0],
+            name: student[1],
+            class: student[2],
+            imageData: imageData
+        };
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                redirect: 'follow'
+            });
+
+            if (!res.ok) {
+                throw new Error(`Server responded with status: ${res.status}`);
+            }
+
+            const r = await res.json();
+            if (r.status === 'success') {
+                showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
+                modalCloseBtn.onclick = () => location.reload();
+            } else {
+                throw new Error(r.message || "An unknown error occurred on the server.");
+            }
+        } catch (e) {
+            showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
         }
-      } catch (e) {
-        showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
-      }
     };
 
     retakeBtn.onclick = async () => {
