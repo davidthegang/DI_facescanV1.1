@@ -167,7 +167,7 @@
 
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz53cMjgR7YKmKpcHsDr525b2TYUUfVu9cWUhUafEUnymH4uPjsRABuELDnia84-aHm/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAldWNZYFLakjCzRTOyWQL2eoALOJ1L0qX0e5KPm3mDsZvnA7O2MDylnKUH8AFHl7_/exec';
     // DOM Elements
     const studentSelect = document.getElementById('student-select');
     const video = document.getElementById('video');
@@ -211,7 +211,6 @@
       choicesInstance = new Choices(studentSelect, {
         searchEnabled: true, placeholder: true, placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
         noResultsText: 'រកមិនឃើញទិន្នន័យ', itemSelectText: '', searchPlaceholderValue: 'ស្វែងរក...',
-        // ADDED: Template callback to add custom classes and icons for completed items
         callbackOnCreateTemplates: function(template) {
             return {
                 choice: ({ classNames }, data) => {
@@ -243,16 +242,13 @@
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
         studentsData = data.slice(1);
-        // MODIFIED: Create choice objects with custom properties and disabled flag
         const options = studentsData.map(s => ({ 
             value: s[0], 
             label: `${s[0]} - ${s[1]}`,
-            disabled: s[3], // Disable the option if hasImage is true
-            customProperties: {
-                hasImage: s[3] 
-            }
+            disabled: s[3],
+            customProperties: { hasImage: s[3] }
         }));
-        choicesInstance.setChoices(options, 'value', 'label', true); // Pass true to replace all choices
+        choicesInstance.setChoices(options, 'value', 'label', true);
       } catch (e) {
         showModal('error', 'មិនអាចទាញយកទិន្នន័យសិស្សបានទេ។');
       }
@@ -356,6 +352,7 @@
         choicesInstance.setChoiceByValue('');
     }
     
+    // MODIFIED: Switched to a more robust JSON payload method
     uploadBtn.onclick = async () => {
       const selectedValue = choicesInstance.getValue(true);
       const student = studentsData.find(s => s[0] == selectedValue);
@@ -367,23 +364,34 @@
       const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
       showModal('loading', 'កំពុងបញ្ជូន...');
 
-      try {
-        const url = new URL(SCRIPT_URL);
-        url.searchParams.append('id', student[0]);
-        url.searchParams.append('name', student[1]);
-        url.searchParams.append('class', student[2]);
+      const payload = {
+          id: student[0],
+          name: student[1],
+          class: student[2],
+          imageData: imageData
+      };
 
-        const res = await fetch(url, {
+      try {
+        const res = await fetch(SCRIPT_URL, {
           method: 'POST',
-          body: imageData,
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          redirect: 'follow'
         });
+
+        // It's safer to check if the response is ok before trying to parse JSON
+        if (!res.ok) {
+            throw new Error(`Server responded with status: ${res.status}`);
+        }
 
         const r = await res.json();
         if (r.status === 'success') {
           showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
           modalCloseBtn.onclick = () => location.reload();
-        } else throw new Error(r.message || "Unknown error from script");
+        } else {
+          // Use the message from the script if available
+          throw new Error(r.message || "An unknown error occurred on the server.");
+        }
       } catch (e) {
         showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
       }
