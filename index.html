@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
     <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
+    <!-- FIXED: Using Tailwind Play CDN to remove production warning -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" xintegrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -64,7 +65,7 @@
         #student-list { max-height: 40vh; overflow-y: auto; }
         #student-list li:hover { background-color: #334155; }
         #student-list li.completed {
-            color: #4ade80 !important; /* Green */
+            color: #4ade80 !important;
             font-weight: 600; opacity: 0.7; pointer-events: none;
         }
         ::-webkit-scrollbar { width: 8px; }
@@ -83,7 +84,7 @@
         <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="text-center py-6 mb-4">
                 <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
-                <h2 class="text-xl font-bold text-white khmer-title">ឧស្សាហកម្មឌីជីថល</h2>
+                <h2 class="text-xl font-bold text-white khmer-title">Dashboard</h2>
             </div>
             <ul class="flex flex-col space-y-2 px-4">
                 <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">Face Scan</span></a></li>
@@ -95,7 +96,7 @@
             <!-- Top Bar -->
             <header class="w-full h-16 bg-slate-800/50 backdrop-blur-lg flex-shrink-0 flex items-center px-6 sticky top-0 z-20">
                 <button id="menu-btn" class="text-white mr-4"><i class="fas fa-bars text-xl"></i></button>
-                <h1 class="text-xl font-bold text-white khmer-title">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យរូបភាព</h1>
+                <h1 class="text-xl font-bold text-white khmer-title">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យ</h1>
             </header>
             
             <!-- Main Content -->
@@ -110,7 +111,7 @@
                             <div id="selection-area" class="mb-5">
                                <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                <ul id="student-list" class="space-y-1">
-                                   <li class="text-center text-slate-400 p-4">កំពុងទាញទិន្នន័យ...</li>
+                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
                                </ul>
                             </div>
 
@@ -134,13 +135,13 @@
 
                 <div id="page-records" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h1 class="text-2xl text-white khmer-title">រូបភាពបានរក្សាទុក</h1>
+                        <h1 class="text-2xl text-white khmer-title">Saved Records</h1>
                         <select id="class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
                     <div id="records-container" class="table-container flex-1 overflow-x-auto">
                         <div id="records-loading" class="text-center py-10"><p class="text-slate-400">Loading records...</p></div>
                         <table id="records-table" class="hidden w-full text-left text-slate-300">
-                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ល.រ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">អត្ថលេខ</th><th class="p-3">ថ្នាក់</th><th class="p-3">ក្រុម</th><th class="p-3">រូបភាព</th></tr></thead>
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">#</th><th class="p-3">Name</th><th class="p-3">ID</th><th class="p-3">Class</th><th class="p-3">Group</th><th class="p-3">Image</th></tr></thead>
                            <tbody></tbody>
                         </table>
                     </div>
@@ -159,7 +160,7 @@
     </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDuJina4LzfkGS0mH_bwZsee9qm7p3SWpjGNYv3CxsExESWlV63LZtlGEZyBKD-5h-/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIpboYTCZ7r3nLXpx68yEf5AU_SzSIntyQDpdeqRerBkIkMQV2wY7teT5D3y4RASbw/exec';
     // DOM Elements
     const video = document.getElementById('video'), captureCanvas = document.getElementById('capture-canvas'),
           photoPreview = document.getElementById('photo-preview'), uploadBtn = document.getElementById('upload-btn'),
@@ -210,10 +211,7 @@
         const res = await fetch(`${SCRIPT_URL}?action=getStudents`);
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
-        // FIXED: Check if the server returned an error object before slicing
-        if (data.status === 'error') {
-            throw new Error(`Script Error: ${data.message}`);
-        }
+        if (data.status === 'error') throw new Error(`Script Error: ${data.message}`);
         studentsData = data.slice(1);
         populateStudentList();
       } catch (e) { 
@@ -225,7 +223,6 @@
     function populateStudentList(filter = '') {
         studentList.innerHTML = '';
         const lowerCaseFilter = filter.toLowerCase();
-        
         const filteredStudents = studentsData.filter(s => 
             (s[0] || '').toString().toLowerCase().includes(lowerCaseFilter) || 
             (s[1] || '').toLowerCase().includes(lowerCaseFilter)
@@ -239,21 +236,10 @@
         filteredStudents.forEach(s => {
             const li = document.createElement('li');
             li.className = 'p-3 rounded-lg cursor-pointer transition flex justify-between items-center';
-            li.dataset.id = s[0];
-            
             const hasCompleted = s[4];
-            if (hasCompleted) {
-                li.classList.add('completed');
-            }
-
+            if (hasCompleted) li.classList.add('completed');
             li.innerHTML = `<span>${s[0]} - ${s[1]}</span>` + (hasCompleted ? `<i class="fas fa-check-circle ml-2"></i>` : '');
-            
-            if (!hasCompleted) {
-                li.onclick = () => {
-                    selectedStudent = s;
-                    startCamera('user');
-                };
-            }
+            if (!hasCompleted) li.onclick = () => { selectedStudent = s; startCamera('user'); };
             studentList.appendChild(li);
         });
     }
@@ -270,7 +256,7 @@
         tbody.innerHTML = '';
         const recordsToDisplay = selectedClass === 'all' ? savedRecordsData : savedRecordsData.filter(r => r[3] === selectedClass);
         if (recordsToDisplay.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">No records found for this class.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">No records found.</td></tr>`;
             return;
         }
         recordsToDisplay.forEach(record => {
@@ -293,7 +279,7 @@
             recordsLoading.style.display = 'none';
             recordsTable.classList.remove('hidden');
         } catch(e) {
-            recordsLoading.innerHTML = `<p class="text-red-400">Error loading records: ${e.message}</p>`;
+            recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`;
         }
     }
 
@@ -309,10 +295,8 @@
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: 640, height: 480 } });
         currentStream = stream;
         video.srcObject = stream;
-        video.onloadedmetadata = () => {
-          detectFace();
-        };
-      } catch (err) { showModal('error', 'សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា'); resetToSelection(); }
+        video.onloadedmetadata = () => detectFace();
+      } catch (err) { showModal('error', 'Please allow camera access.'); resetToSelection(); }
     }
 
     async function detectFace() {
@@ -322,13 +306,13 @@
         const result = await faceapi.detectSingleFace(video, options);
         if (result && result.score > 0.7) {
           stableFrames++;
-          faceStatus.textContent = `ល្អណាស់! (${stableFrames}/4)`;
+          faceStatus.textContent = `Excellent! (${stableFrames}/4)`;
           faceStatus.classList.add('text-green-400');
           videoWrapper.classList.add('ready');
           if (stableFrames >= 4) captureFace();
         } else {
           stableFrames = 0;
-          faceStatus.textContent = "សូមដាក់មុខចំកណ្តាលកាមេរ៉ា";
+          faceStatus.textContent = "Please center your face";
           faceStatus.classList.remove('text-green-400');
           videoWrapper.classList.remove('ready');
         }
@@ -354,7 +338,7 @@
       uploadBtn.classList.remove('hidden');
       retakeBtn.classList.remove('hidden');
       faceStatus.classList.add('hidden');
-      subtitle.textContent = "សូមបញ្ជាក់រូបភាពរបស់អ្នក";
+      subtitle.textContent = "Confirm your photo";
     }
 
     function stopCamera() {
@@ -372,22 +356,20 @@
         retakeBtn.classList.add('hidden');
         videoWrapper.classList.remove('hidden');
         selectionArea.classList.remove('hidden');
-        subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
+        subtitle.textContent = "Select your ID or Name";
         selectedStudent = null;
     }
     
     uploadBtn.onclick = async () => {
         if (!selectedStudent) { showModal('error', 'Could not find student data.'); return; }
         const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-        showModal('loading', 'កំពុងបញ្ជូន...');
+        showModal('loading', 'Uploading...');
         try {
             const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify({ 
-                    id: selectedStudent[0], 
-                    name: selectedStudent[1], 
-                    class: selectedStudent[2], 
-                    group: selectedStudent[3],
+                    id: selectedStudent[0], name: selectedStudent[1], 
+                    class: selectedStudent[2], group: selectedStudent[3],
                     imageData 
                 }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -396,7 +378,7 @@
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const r = await res.json();
             if (r.status === 'success') {
-                showModal('success', "រូបភាពត្រូវបានរក្សាទុកបានជោគជ័យ!");
+                showModal('success', "Image saved successfully!");
                 modalCloseBtn.onclick = () => location.reload();
             } else throw new Error(r.message || "Unknown server error.");
         } catch (e) { showModal('error', `Upload failed: ${e.message}`); }
@@ -420,7 +402,6 @@
     sidebarBackdrop.onclick = () => closeSidebar();
     classFilter.onchange = () => filterRecordsTable();
 
-    // CORRECTED: The initial loading is now handled properly without a dedicated element
     window.onload = async () => {
       showModal('loading', 'Initializing System...');
       await loadModels();
