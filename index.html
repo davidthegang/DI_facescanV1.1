@@ -6,8 +6,6 @@
     <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
     <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" xintegrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,141 +16,140 @@
         body {
             font-family: 'Kantumruy Pro', sans-serif;
             background: #0f172a;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             color: #e2e8f0;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
-        .main-card {
+        .main-content {
             background: rgba(30, 41, 59, 0.7);
-            border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        #sidebar.is-open {
+            transform: translateX(0);
+        }
+        .nav-link.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+        }
         .video-container video {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: translate(-50%, -50%) scaleX(-1);
+            position: absolute; top: 50%; left: 50%; width: 100%; height: 100%;
+            object-fit: cover; transform: translate(-50%, -50%) scaleX(-1);
         }
         .video-container { 
-            position: relative; 
-            border-radius: 50%; 
-            overflow: hidden; 
-            border: 5px solid transparent; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; border-radius: 50%; overflow: hidden; 
+            border: 5px solid transparent; transition: all 0.4s ease;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
         .video-container.ready { 
-            border-color: #4ade80;
-            box-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
+            border-color: #4ade80; box-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
         }
         .scanner-line {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 3px;
+            position: absolute; left: 0; width: 100%; height: 3px;
             background: linear-gradient(to right, transparent, #4ade80, transparent);
-            box-shadow: 0 0 10px #4ade80;
-            animation: scan 3s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s;
+            box-shadow: 0 0 10px #4ade80; animation: scan 3s linear infinite;
+            opacity: 0; transition: opacity 0.3s;
         }
         .video-container.ready .scanner-line { opacity: 1; }
-        @keyframes scan {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
+        @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+        .modal { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
+        .modal-content { background: #1e293b; border: 1px solid #475569; }
+        .khmer-title { font-family: "Moul", serif; }
+        .table-container { height: calc(100vh - 220px); overflow-y: auto; }
+        #student-list { max-height: 40vh; overflow-y: auto; }
+        #student-list li:hover { background-color: #334155; }
+        #student-list li.completed {
+            color: #4ade80 !important; /* Green */
+            font-weight: 600; opacity: 0.7; pointer-events: none;
         }
-        .choices { margin-bottom: 0; }
-        .choices__inner { 
-            background-color: #1e293b; border: 1px solid #475569; border-radius: 12px;
-            padding: 10px 15px; font-size: 1rem; color: #e2e8f0; 
-        }
-        .choices__list--dropdown { background-color: #1e293b; border-color: #475569; border-radius: 12px; }
-        .choices__item--choice { color: #cbd5e1; }
-        .choices__item--choice.is-highlighted { background-color: #334155; }
-        .choices__placeholder { color: #94a3b8; }
-
-        /* MODIFIED: Changed highlight color to RED */
-        .choices__item--choice.choice-completed {
-            color: #f87171 !important; /* Tailwind's red-400 */
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .choices__item--choice.is-highlighted.choice-completed {
-            background-color: #7f1d1d; /* Tailwind's red-900 */
-        }
-        .choices__item.is-disabled {
-           opacity: 0.6;
-           background-color: #1e293b;
-        }
-        .modal {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: #1e293b;
-            border: 1px solid #475569;
-        }
-        .khmer-title {
-            font-family: "Moul", serif;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 
-<body class="bg-slate-900">
-    <div id="loading-state" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50 transition-opacity duration-500">
-        <img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
-        <p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p>
-    </div>
+<body class="bg-slate-900 text-slate-200">
 
-    <div class="container w-full max-w-md p-6 main-card relative">
-        <button id="back-btn" class="hidden absolute top-6 left-6 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110 z-20" title="Back to Selection">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
+    <div class="relative min-h-screen md:flex">
+        <!-- Sidebar Backdrop -->
+        <div id="sidebar-backdrop" class="hidden md:hidden fixed inset-0 bg-black/50 z-30"></div>
 
-        <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-        <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
-
-        <div id="selection-area" class="mb-5">
-            <select id="student-select"></select>
-        </div>
-
-        <div id="camera-section" class="hidden flex flex-col items-center space-y-4">
-            <div id="video-wrapper" class="video-container w-[90%] mx-auto aspect-square">
-                <video id="video" autoplay muted playsinline></video>
-                <div class="scanner-line"></div>
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="text-center py-6 mb-4">
+                <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
+                <h2 class="text-xl font-bold text-white khmer-title">Dashboard</h2>
             </div>
+            <ul class="flex flex-col space-y-2 px-4">
+                <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">Face Scan</span></a></li>
+                <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">Saved Records</span></a></li>
+            </ul>
+        </aside>
+
+        <div id="content-wrapper" class="flex flex-col flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+            <!-- Top Bar -->
+            <header class="w-full h-16 bg-slate-800/50 backdrop-blur-lg flex-shrink-0 flex items-center px-6 sticky top-0 z-20">
+                <button id="menu-btn" class="text-white mr-4"><i class="fas fa-bars text-xl"></i></button>
+                <h1 class="text-xl font-bold text-white khmer-title">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យ</h1>
+            </header>
             
-            <button id="switch-camera-btn" class="hidden w-14 h-14 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition transform hover:scale-110" title="Switch Camera">
-                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.691v4.992h-4.992m0 0l-3.182-3.182a8.25 8.25 0 0111.667 0l3.182 3.182" />
-                </svg>
-            </button>
-            <canvas id="capture-canvas" class="hidden"></canvas>
-            <img id="photo-preview" class="hidden w-[90%] mx-auto aspect-square rounded-full border-4 border-green-400 object-cover shadow-lg">
-            <p id="face-status" class="text-center text-sm h-5 font-semibold text-slate-400"></p>
-            <div class="flex flex-col w-full space-y-3">
-                <button id="upload-btn" class="hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg">
-                    បញ្ជូនរូបភាព
-                </button>
-                <button id="retake-btn" class="hidden w-full bg-slate-600 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">
-                    ថតម្តងទៀត
-                </button>
-            </div>
+            <!-- Main Content -->
+            <main class="w-full flex-1 p-4 md:p-8">
+                <div id="page-scan">
+                     <div class="main-content rounded-2xl p-6">
+                        <div class="container w-full max-w-md mx-auto relative">
+                            <button id="back-btn" class="hidden absolute -top-2 -left-2 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition z-20" title="Back to Selection"><i class="fas fa-arrow-left"></i></button>
+                            <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
+                            <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+                            
+                            <div id="selection-area" class="mb-5">
+                               <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                               <ul id="student-list" class="space-y-1">
+                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
+                               </ul>
+                            </div>
+
+                            <div id="camera-section" class="hidden flex flex-col items-center space-y-4">
+                                <div id="video-wrapper" class="video-container w-[90%] mx-auto aspect-square">
+                                    <video id="video" autoplay muted playsinline></video>
+                                    <div class="scanner-line"></div>
+                                </div>
+                                <button id="switch-camera-btn" class="hidden w-14 h-14 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition" title="Switch Camera"><i class="fas fa-sync-alt fa-lg"></i></button>
+                                <canvas id="capture-canvas" class="hidden"></canvas>
+                                <img id="photo-preview" class="hidden w-[90%] mx-auto aspect-square rounded-full border-4 border-green-400 object-cover shadow-lg">
+                                <p id="face-status" class="text-center text-sm h-5 font-semibold text-slate-400"></p>
+                                <div class="flex flex-col w-full space-y-3">
+                                    <button id="upload-btn" class="hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg">បញ្ជូនរូបភាព</button>
+                                    <button id="retake-btn" class="hidden w-full bg-slate-600 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">ថតម្តងទៀត</button>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+
+                <div id="page-records" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <h1 class="text-2xl text-white khmer-title">Saved Records</h1>
+                        <select id="class-filter" class="filter-select w-full md:w-auto"></select>
+                    </div>
+                    <div id="records-container" class="table-container flex-1 overflow-x-auto">
+                        <div id="records-loading" class="text-center py-10"><p class="text-slate-400">Loading records...</p></div>
+                        <table id="records-table" class="hidden w-full text-left text-slate-300">
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">#</th><th class="p-3">Name</th><th class="p-3">ID</th><th class="p-3">Class</th><th class="p-3">Group</th><th class="p-3">Image</th></tr></thead>
+                           <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
     
+    <!-- Modals -->
     <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal">
       <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-2xl text-center">
         <div id="modal-icon" class="w-16 h-16 mx-auto mb-4"></div>
@@ -161,27 +158,27 @@
       </div>
     </div>
 
-
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiFJXheTXxY9HfInlubOHVYI0ur5iG5ODweXc-tkoKftL1ykftF86S6QPTxW_zyS3A/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDuJina4LzfkGS0mH_bwZsee9qm7p3SWpjGNYv3CxsExESWlV63LZtlGEZyBKD-5h-/exec';
     // DOM Elements
-    const studentSelect = document.getElementById('student-select');
-    const video = document.getElementById('video');
-    const captureCanvas = document.getElementById('capture-canvas');
-    const photoPreview = document.getElementById('photo-preview');
-    const uploadBtn = document.getElementById('upload-btn');
-    const retakeBtn = document.getElementById('retake-btn');
-    const cameraSection = document.getElementById('camera-section');
-    const videoWrapper = document.getElementById('video-wrapper');
-    const faceStatus = document.getElementById('face-status');
-    const subtitle = document.getElementById('subtitle');
-    const loadingState = document.getElementById('loading-state');
-    const switchCameraBtn = document.getElementById('switch-camera-btn');
-    const backBtn = document.getElementById('back-btn');
-    const modal = document.getElementById('modal');
-    const modalIcon = document.getElementById('modal-icon');
-    const modalMessage = document.getElementById('modal-message');
-    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const video = document.getElementById('video'), captureCanvas = document.getElementById('capture-canvas'),
+          photoPreview = document.getElementById('photo-preview'), uploadBtn = document.getElementById('upload-btn'),
+          retakeBtn = document.getElementById('retake-btn'), cameraSection = document.getElementById('camera-section'),
+          videoWrapper = document.getElementById('video-wrapper'), faceStatus = document.getElementById('face-status'),
+          subtitle = document.getElementById('subtitle'), switchCameraBtn = document.getElementById('switch-camera-btn'),
+          backBtn = document.getElementById('back-btn'), modal = document.getElementById('modal'),
+          modalIcon = document.getElementById('modal-icon'), modalMessage = document.getElementById('modal-message'),
+          modalCloseBtn = document.getElementById('modal-close-btn');
+
+    const pageScan = document.getElementById('page-scan'), pageRecords = document.getElementById('page-records'),
+          navScan = document.getElementById('nav-scan'), navRecords = document.getElementById('nav-records'),
+          recordsLoading = document.getElementById('records-loading'), recordsTable = document.getElementById('records-table'),
+          sidebar = document.getElementById('sidebar'), menuBtn = document.getElementById('menu-btn'),
+          classFilter = document.getElementById('class-filter'), sidebarBackdrop = document.getElementById('sidebar-backdrop');
+          
+    const selectionArea = document.getElementById('selection-area');
+    const studentSearchInput = document.getElementById('student-search-input');
+    const studentList = document.getElementById('student-list');
 
     const icons = {
         success: `<svg class="w-full h-full text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
@@ -189,40 +186,15 @@
         loading: `<div class="w-16 h-16 border-4 border-slate-500 border-t-indigo-500 rounded-full animate-spin"></div>`
     };
 
-    let studentsData = [], currentStream, faceApiInterval, stableFrames = 0, choicesInstance, currentFacingMode = 'user';
+    let studentsData = [], savedRecordsData = [], currentStream, faceApiInterval, stableFrames = 0, currentFacingMode = 'user', selectedStudent = null;
     
     function showModal(type, message) {
         modalIcon.innerHTML = icons[type];
         modalMessage.textContent = message;
         modal.classList.remove('hidden');
-        if (type === 'loading') {
-            modalCloseBtn.classList.add('hidden');
-        } else {
-            modalCloseBtn.classList.remove('hidden');
-        }
+        modalCloseBtn.style.display = (type === 'loading') ? 'none' : 'block';
     }
     modalCloseBtn.onclick = () => modal.classList.add('hidden');
-
-    function initChoices() {
-      choicesInstance = new Choices(studentSelect, {
-        searchEnabled: true, placeholder: true, placeholderValue: 'សូមជ្រើស ID ឬឈ្មោះ...',
-        noResultsText: 'រកមិនឃើញទិន្នន័យ', itemSelectText: '', searchPlaceholderValue: 'ស្វែងរក...',
-        callbackOnCreateTemplates: function(template) {
-            return {
-                choice: ({ classNames }, data) => {
-                    const extraClasses = data.customProperties && data.customProperties.hasImage ? 'choice-completed' : '';
-                    const checkIcon = data.customProperties && data.customProperties.hasImage ? '<i class="fas fa-check-circle ml-2"></i>' : '';
-                    
-                    return template(`
-                        <div class="${classNames.item} ${classNames.choice} ${extraClasses}" data-select-text="${this.config.itemSelectText}" data-choice data-id="${data.id}" data-value="${data.value}" ${data.disabled ? 'aria-disabled="true"' : ''}>
-                           <span>${data.label}</span> ${checkIcon}
-                        </div>
-                    `);
-                },
-            };
-        }
-      });
-    }
 
     async function loadModels() {
       const MODEL_URL = './weights';
@@ -235,59 +207,122 @@
 
     async function fetchStudents() {
       try {
-        const res = await fetch(SCRIPT_URL);
-        if (!res.ok) {
-            throw new Error(`Server responded with status: ${res.status}. Please ensure the script is deployed for 'Anyone'.`);
-        }
+        const res = await fetch(`${SCRIPT_URL}?action=getStudents`);
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
+        // FIXED: Check if the server returned an error object before slicing
         if (data.status === 'error') {
             throw new Error(`Script Error: ${data.message}`);
         }
         studentsData = data.slice(1);
-        const options = studentsData.map(s => ({ 
-            value: s[0], 
-            label: `${s[0]} - ${s[1]}`,
-            disabled: s[3],
-            customProperties: { hasImage: s[3] }
-        }));
-        choicesInstance.setChoices(options, 'value', 'label', true);
-      } catch (e) {
-        console.error("Failed to fetch student data:", e);
-        showModal('error', `មិនអាចទាញយកទិន្នន័យបានទេ: ${e.message}`);
+        populateStudentList();
+      } catch (e) { 
+          console.error("Fetch Student Error:", e);
+          showModal('error', `Could not fetch student data: ${e.message}`); 
       }
+    }
+    
+    function populateStudentList(filter = '') {
+        studentList.innerHTML = '';
+        const lowerCaseFilter = filter.toLowerCase();
+        
+        const filteredStudents = studentsData.filter(s => 
+            (s[0] || '').toString().toLowerCase().includes(lowerCaseFilter) || 
+            (s[1] || '').toLowerCase().includes(lowerCaseFilter)
+        );
+
+        if (filteredStudents.length === 0) {
+            studentList.innerHTML = `<li class="text-center text-slate-400 p-4">No students found.</li>`;
+            return;
+        }
+        
+        filteredStudents.forEach(s => {
+            const li = document.createElement('li');
+            li.className = 'p-3 rounded-lg cursor-pointer transition flex justify-between items-center';
+            li.dataset.id = s[0];
+            
+            const hasCompleted = s[4];
+            if (hasCompleted) {
+                li.classList.add('completed');
+            }
+
+            li.innerHTML = `<span>${s[0]} - ${s[1]}</span>` + (hasCompleted ? `<i class="fas fa-check-circle ml-2"></i>` : '');
+            
+            if (!hasCompleted) {
+                li.onclick = () => {
+                    selectedStudent = s;
+                    startCamera('user');
+                };
+            }
+            studentList.appendChild(li);
+        });
+    }
+
+    function populateClassFilter(records) {
+        const classes = [...new Set(records.map(r => r[3]).filter(Boolean))];
+        classFilter.innerHTML = '<option value="all">All Classes</option>';
+        classes.sort().forEach(c => classFilter.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+    
+    function filterRecordsTable() {
+        const selectedClass = classFilter.value;
+        const tbody = recordsTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        const recordsToDisplay = selectedClass === 'all' ? savedRecordsData : savedRecordsData.filter(r => r[3] === selectedClass);
+        if (recordsToDisplay.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">No records found for this class.</td></tr>`;
+            return;
+        }
+        recordsToDisplay.forEach(record => {
+            const imageUrl = record[5];
+            const row = `<tr class="border-b border-slate-700"><td class="p-3">${record[0]}</td><td class="p-3">${record[1]}</td><td class="p-3">${record[2]}</td><td class="p-3">${record[3]}</td><td class="p-3">${record[4]}</td><td class="p-3"><a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-16 h-16 group rounded-lg overflow-hidden"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center transition-opacity"><i class="fas fa-expand text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"></i></div></a></td></tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    async function displaySavedRecords() {
+        recordsLoading.style.display = 'block';
+        recordsTable.classList.add('hidden');
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getSavedData`);
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+            savedRecordsData = data.slice(1);
+            populateClassFilter(savedRecordsData);
+            filterRecordsTable();
+            recordsLoading.style.display = 'none';
+            recordsTable.classList.remove('hidden');
+        } catch(e) {
+            recordsLoading.innerHTML = `<p class="text-red-400">Error loading records: ${e.message}</p>`;
+        }
     }
 
     async function startCamera(facingMode = 'user') {
       currentFacingMode = facingMode;
-      subtitle.textContent = "កំពុងបើកកាមេរ៉ា...";
+      subtitle.textContent = `Scanning for: ${selectedStudent[1]}`;
       cameraSection.classList.remove('hidden');
-      document.getElementById('selection-area').classList.add('hidden');
+      selectionArea.classList.add('hidden');
       switchCameraBtn.classList.remove('hidden');
       backBtn.classList.remove('hidden');
       stopCamera(); 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode, width: 640, height: 480 } });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: 640, height: 480 } });
         currentStream = stream;
         video.srcObject = stream;
         video.onloadedmetadata = () => {
-          subtitle.textContent = "សូមដាក់មុខរបស់អ្នកឱ្យចំកណ្តាល";
           detectFace();
         };
-      } catch (err) {
-        showModal('error', 'សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា');
-        resetToSelection();
-      }
+      } catch (err) { showModal('error', 'សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា'); resetToSelection(); }
     }
 
     async function detectFace() {
       const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
       clearInterval(faceApiInterval);
       faceApiInterval = setInterval(async () => {
-        const result = await faceapi.detectSingleFace(video, options).withFaceExpressions();
-        if (result && result.detection.score > 0.8) {
+        const result = await faceapi.detectSingleFace(video, options);
+        if (result && result.score > 0.7) {
           stableFrames++;
           faceStatus.textContent = `ល្អណាស់! (${stableFrames}/4)`;
-          faceStatus.classList.remove('text-slate-400');
           faceStatus.classList.add('text-green-400');
           videoWrapper.classList.add('ready');
           if (stableFrames >= 4) captureFace();
@@ -295,7 +330,6 @@
           stableFrames = 0;
           faceStatus.textContent = "សូមដាក់មុខចំកណ្តាលកាមេរ៉ា";
           faceStatus.classList.remove('text-green-400');
-          faceStatus.classList.add('text-slate-400');
           videoWrapper.classList.remove('ready');
         }
       }, 400);
@@ -305,25 +339,13 @@
       clearInterval(faceApiInterval);
       const ctx = captureCanvas.getContext('2d');
       const size = 512;
-      captureCanvas.width = size;
-      captureCanvas.height = size;
+      captureCanvas.width = size; captureCanvas.height = size;
       ctx.translate(size, 0); ctx.scale(-1, 1);
-      
-      let sx, sy, sWidth, sHeight;
-      const videoRatio = video.videoWidth / video.videoHeight;
-      if (videoRatio > 1) { 
-          sHeight = video.videoHeight;
-          sWidth = sHeight;
-          sx = (video.videoWidth - sWidth) / 2;
-          sy = 0;
-      } else {
-          sWidth = video.videoWidth;
-          sHeight = sWidth;
-          sx = 0;
-          sy = (video.videoHeight - sHeight) / 2;
-      }
+      const vRatio = video.videoWidth / video.videoHeight;
+      let sx=0, sy=0, sWidth=video.videoWidth, sHeight=video.videoHeight;
+      if (vRatio > 1) { sWidth = sHeight; sx = (video.videoWidth - sWidth) / 2; } 
+      else { sHeight = sWidth; sy = (video.videoHeight - sHeight) / 2; }
       ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, size, size);
-
       photoPreview.src = captureCanvas.toDataURL('image/jpeg', 0.9);
       stopCamera();
       switchCameraBtn.classList.add('hidden');
@@ -349,87 +371,61 @@
         uploadBtn.classList.add('hidden');
         retakeBtn.classList.add('hidden');
         videoWrapper.classList.remove('hidden');
-        document.getElementById('selection-area').classList.remove('hidden');
+        selectionArea.classList.remove('hidden');
         subtitle.textContent = "សូមជ្រើសរើសអត្តលេខរបស់អ្នក";
-        choicesInstance.clearInput();
-        choicesInstance.setChoiceByValue('');
+        selectedStudent = null;
     }
     
     uploadBtn.onclick = async () => {
-        const selectedValue = choicesInstance.getValue(true);
-        const student = studentsData.find(s => s[0] == selectedValue);
-        if (!student) {
-            showModal('error', 'Could not find student data.');
-            return;
-        }
-
+        if (!selectedStudent) { showModal('error', 'Could not find student data.'); return; }
         const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
         showModal('loading', 'កំពុងបញ្ជូន...');
-
-        const payload = {
-            id: student[0],
-            name: student[1],
-            class: student[2],
-            imageData: imageData
-        };
-
         try {
             const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload),
+                body: JSON.stringify({ 
+                    id: selectedStudent[0], 
+                    name: selectedStudent[1], 
+                    class: selectedStudent[2], 
+                    group: selectedStudent[3],
+                    imageData 
+                }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 redirect: 'follow'
             });
-
-            if (!res.ok) {
-                throw new Error(`Server responded with status: ${res.status}`);
-            }
-
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const r = await res.json();
             if (r.status === 'success') {
                 showModal('success', "រូបភាពត្រូវបានរក្សាទុកเรียบร้อยแล้ว!");
                 modalCloseBtn.onclick = () => location.reload();
-            } else {
-                throw new Error(r.message || "An unknown error occurred on the server.");
-            }
-        } catch (e) {
-            showModal('error', `មានបញ្ហាក្នុងការបញ្ជូនរូបភាព: ${e.message}`);
-        }
+            } else throw new Error(r.message || "Unknown server error.");
+        } catch (e) { showModal('error', `Upload failed: ${e.message}`); }
     };
 
-    retakeBtn.onclick = async () => {
-      photoPreview.classList.add('hidden');
-      uploadBtn.classList.add('hidden');
-      retakeBtn.classList.add('hidden');
-      videoWrapper.classList.remove('hidden');
-      faceStatus.classList.remove('hidden');
-      switchCameraBtn.classList.remove('hidden');
-      backBtn.classList.remove('hidden');
-      stableFrames = 0;
-      startCamera(currentFacingMode);
+    retakeBtn.onclick = () => {
+      photoPreview.classList.add('hidden'); uploadBtn.classList.add('hidden'); retakeBtn.classList.add('hidden');
+      videoWrapper.classList.remove('hidden'); faceStatus.classList.remove('hidden');
+      stableFrames = 0; startCamera(currentFacingMode);
     };
     
-    switchCameraBtn.onclick = () => {
-        const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-        startCamera(newFacingMode);
-    };
+    switchCameraBtn.onclick = () => startCamera(currentFacingMode === 'user' ? 'environment' : 'user');
+    backBtn.onclick = () => resetToSelection();
+    
+    studentSearchInput.oninput = () => populateStudentList(studentSearchInput.value);
 
-    backBtn.onclick = () => {
-        resetToSelection();
-    };
+    const closeSidebar = () => { sidebar.classList.remove('is-open'); sidebarBackdrop.classList.add('hidden'); };
+    navScan.onclick = (e) => { e.preventDefault(); pageRecords.classList.add('hidden'); pageScan.classList.remove('hidden'); navScan.classList.add('active'); navRecords.classList.remove('active'); closeSidebar(); };
+    navRecords.onclick = (e) => { e.preventDefault(); pageScan.classList.add('hidden'); pageRecords.classList.remove('hidden'); navRecords.classList.add('active'); navScan.classList.remove('active'); stopCamera(); displaySavedRecords(); closeSidebar(); };
+    menuBtn.onclick = () => { sidebar.classList.toggle('is-open'); sidebarBackdrop.classList.toggle('hidden'); };
+    sidebarBackdrop.onclick = () => closeSidebar();
+    classFilter.onchange = () => filterRecordsTable();
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stopCamera();
-    });
-
+    // CORRECTED: The initial loading is now handled properly without a dedicated element
     window.onload = async () => {
-      initChoices();
+      showModal('loading', 'Initializing System...');
       await loadModels();
       await fetchStudents();
-      loadingState.style.display = 'none';
-      studentSelect.addEventListener('change', async e => {
-        if (e.detail.value) await startCamera('user');
-      });
+      modal.classList.add('hidden');
     };
   </script>
 </body>
