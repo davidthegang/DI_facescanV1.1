@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
+    <title>ប្រព័ន្ធស្កେនមុខឌីជីថល</title>
     <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
@@ -138,15 +138,17 @@
                         <h1 class="text-2xl text-white khmer-title">List Students</h1>
                         <select id="list-class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-center">
-                        <div class="bg-slate-700/50 p-4 rounded-lg"><p class="text-slate-400">Total Students</p><p id="list-total-count" class="text-2xl font-bold text-white">-</p></div>
-                        <div class="bg-green-800/30 p-4 rounded-lg"><p class="text-green-400">With Photos</p><p id="list-completed-count" class="text-2xl font-bold text-green-400">-</p></div>
-                        <div class="bg-red-800/30 p-4 rounded-lg"><p class="text-red-400">Without Photos</p><p id="list-pending-count" class="text-2xl font-bold text-red-400">-</p></div>
+                    <!-- EDITED: Added icons to stat cards for a more professional look -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-left">
+                        <div class="bg-slate-700/50 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-users fa-2x text-slate-400"></i><div><p class="text-slate-400">Total Students</p><p id="list-total-count" class="text-2xl font-bold text-white">-</p></div></div>
+                        <div class="bg-green-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-check fa-2x text-green-400"></i><div><p class="text-green-400">With Photos</p><p id="list-completed-count" class="text-2xl font-bold text-green-400">-</p></div></div>
+                        <div class="bg-red-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-clock fa-2x text-red-400"></i><div><p class="text-red-400">Without Photos</p><p id="list-pending-count" class="text-2xl font-bold text-red-400">-</p></div></div>
                     </div>
                     <div id="list-container" class="table-container flex-1 overflow-x-auto">
                         <div id="list-loading" class="text-center py-10"><p class="text-slate-400">Loading student list...</p></div>
                         <table id="list-table" class="hidden w-full text-left text-slate-300">
-                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Image</th><th class="p-3">Status</th></tr></thead>
+                           <!-- EDITED: Changed "Image" header to "Class" -->
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Class</th><th class="p-3">Status</th></tr></thead>
                            <tbody></tbody>
                         </table>
                     </div>
@@ -190,23 +192,19 @@
           subtitle = document.getElementById('subtitle'), switchCameraBtn = document.getElementById('switch-camera-btn'),
           backBtn = document.getElementById('back-btn'), modal = document.getElementById('modal'),
           modalIcon = document.getElementById('modal-icon'), modalMessage = document.getElementById('modal-message'),
-          modalCloseBtn = document.getElementById('modal-close-btn'), modalButtons = document.getElementById('modal-buttons');
+          modalButtons = document.getElementById('modal-buttons');
 
-    // Page Elements
     const pageScan = document.getElementById('page-scan'), pageRecords = document.getElementById('page-records'), pageList = document.getElementById('page-list'),
           navScan = document.getElementById('nav-scan'), navRecords = document.getElementById('nav-records'), navList = document.getElementById('nav-list'),
           sidebar = document.getElementById('sidebar'), menuBtn = document.getElementById('menu-btn'), sidebarBackdrop = document.getElementById('sidebar-backdrop');
           
-    // Search Elements
     const selectionArea = document.getElementById('selection-area');
     const studentSearchInput = document.getElementById('student-search-input');
     const studentList = document.getElementById('student-list');
     
-    // Records Page Elements
     const recordsLoading = document.getElementById('records-loading'), recordsTable = document.getElementById('records-table'),
           recordsClassFilter = document.getElementById('records-class-filter');
 
-    // List Students Page Elements
     const listLoading = document.getElementById('list-loading'), listTable = document.getElementById('list-table'),
           listClassFilter = document.getElementById('list-class-filter'),
           listTotalCount = document.getElementById('list-total-count'),
@@ -248,7 +246,7 @@
         const data = await res.json();
         if (data.status === 'error') throw new Error(`Script Error: ${data.message}`);
         studentsData = data.slice(1);
-        allStudentsListData = studentsData; // Store a full copy for the List Students page
+        allStudentsListData = studentsData;
         populateStudentList();
       } catch (e) { showModal('error', `Could not fetch student data: ${e.message}`); }
     }
