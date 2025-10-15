@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
     <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
-    <!-- FIXED: Using Tailwind Play CDN to remove production warning -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" xintegrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -64,10 +63,17 @@
         .table-container { height: calc(100vh - 220px); overflow-y: auto; }
         #student-list { max-height: 40vh; overflow-y: auto; }
         #student-list li:hover { background-color: #334155; }
-        #student-list li.completed {
-            color: #4ade80 !important;
-            font-weight: 600; opacity: 0.7; pointer-events: none;
+        
+        /* --- NEW COLOR STYLES --- */
+        #student-list li.completed-1 { color: #f97316 !important; font-weight: 600; } /* Orange */
+        #student-list li.completed-2 { color: #3b82f6 !important; font-weight: 600; } /* Blue */
+        #student-list li.completed-3 { color: #eab308 !important; font-weight: 600; } /* Yellow */
+        #student-list li.completed-4 { color: #ec4899 !important; font-weight: 600; } /* Pink */
+        #student-list li.completed-5 { 
+            color: #ef4444 !important; font-weight: 600; 
+            opacity: 0.7; pointer-events: none; 
         }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -84,11 +90,11 @@
         <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="text-center py-6 mb-4">
                 <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
-                <h2 class="text-xl font-bold text-white khmer-title">ឧស្សាហកម្មឌីជីថល</h2>
+                <h2 class="text-xl font-bold text-white khmer-title">Dashboard</h2>
             </div>
             <ul class="flex flex-col space-y-2 px-4">
-                <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">ប្រព័ន្ធស្កេនមុខ</span></a></li>
-                <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">រូបភាពបានរក្សាទុក</span></a></li>
+                <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">Face Scan</span></a></li>
+                <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">Saved Records</span></a></li>
             </ul>
         </aside>
 
@@ -111,7 +117,7 @@
                             <div id="selection-area" class="mb-5">
                                <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                <ul id="student-list" class="space-y-1">
-                                   <li class="text-center text-slate-400 p-4">កំពុងទាញទិន្នន័យ...</li>
+                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
                                </ul>
                             </div>
 
@@ -135,13 +141,13 @@
 
                 <div id="page-records" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h1 class="text-2xl text-white khmer-title">រូបភាពបានរក្សាទុក</h1>
+                        <h1 class="text-2xl text-white khmer-title">Saved Records</h1>
                         <select id="class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
                     <div id="records-container" class="table-container flex-1 overflow-x-auto">
-                        <div id="records-loading" class="text-center py-10"><p class="text-slate-400">កំពុងទាញទិន្នន័យពីនិស្សិតបញ្ជូនរូបភាព...</p></div>
+                        <div id="records-loading" class="text-center py-10"><p class="text-slate-400">Loading records...</p></div>
                         <table id="records-table" class="hidden w-full text-left text-slate-300">
-                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ល.រ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">អត្ថលេខ</th><th class="p-3">ថ្នាក់</th><th class="p-3">ក្រុម</th><th class="p-3">រូបភាព</th></tr></thead>
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">#</th><th class="p-3">Name</th><th class="p-3">ID</th><th class="p-3">Class</th><th class="p-3">Group</th><th class="p-3">Image</th></tr></thead>
                            <tbody></tbody>
                         </table>
                     </div>
@@ -223,6 +229,7 @@
     function populateStudentList(filter = '') {
         studentList.innerHTML = '';
         const lowerCaseFilter = filter.toLowerCase();
+        
         const filteredStudents = studentsData.filter(s => 
             (s[0] || '').toString().toLowerCase().includes(lowerCaseFilter) || 
             (s[1] || '').toLowerCase().includes(lowerCaseFilter)
@@ -236,10 +243,27 @@
         filteredStudents.forEach(s => {
             const li = document.createElement('li');
             li.className = 'p-3 rounded-lg cursor-pointer transition flex justify-between items-center';
-            const hasCompleted = s[4];
-            if (hasCompleted) li.classList.add('completed');
-            li.innerHTML = `<span>${s[0]} - ${s[1]}</span>` + (hasCompleted ? `<i class="fas fa-check-circle ml-2"></i>` : '');
-            if (!hasCompleted) li.onclick = () => { selectedStudent = s; startCamera('user'); };
+            li.dataset.id = s[0];
+            
+            const uploadCount = s[4]; // Index 4 is now UploadCount
+            let countIndicator = '';
+
+            if (uploadCount > 0) {
+                li.classList.add(`completed-${uploadCount}`);
+                countIndicator = uploadCount >= 5 ? `<i class="fas fa-check-circle ml-2"></i>` : `<span>(${uploadCount})</span>`;
+            }
+            
+            if (uploadCount >= 5) {
+                li.style.pointerEvents = 'none';
+                li.style.opacity = '0.7';
+            } else {
+                li.onclick = () => {
+                    selectedStudent = s;
+                    startCamera('user');
+                };
+            }
+
+            li.innerHTML = `<span>${s[0]} - ${s[1]}</span>` + countIndicator;
             studentList.appendChild(li);
         });
     }
@@ -256,7 +280,7 @@
         tbody.innerHTML = '';
         const recordsToDisplay = selectedClass === 'all' ? savedRecordsData : savedRecordsData.filter(r => r[3] === selectedClass);
         if (recordsToDisplay.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">No records found.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">No records found for this class.</td></tr>`;
             return;
         }
         recordsToDisplay.forEach(record => {
@@ -279,7 +303,7 @@
             recordsLoading.style.display = 'none';
             recordsTable.classList.remove('hidden');
         } catch(e) {
-            recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`;
+            recordsLoading.innerHTML = `<p class="text-red-400">Error loading records: ${e.message}</p>`;
         }
     }
 
@@ -403,10 +427,10 @@
     classFilter.onchange = () => filterRecordsTable();
 
     window.onload = async () => {
-      showModal('loading', 'ប្រព័ន្ធកំពុងដំណើរការ...');
+      document.body.insertAdjacentHTML('afterbegin', `<div id="initial-loading" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50"><img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg"><p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p></div>`);
       await loadModels();
       await fetchStudents();
-      modal.classList.add('hidden');
+      document.getElementById('initial-loading').style.display = 'none';
     };
   </script>
 </body>
