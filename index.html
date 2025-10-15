@@ -60,16 +60,13 @@
         .modal { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
         .modal-content { background: #1e293b; border: 1px solid #475569; }
         .khmer-title { font-family: "Moul", serif; }
-        .table-container { height: calc(100vh - 220px); overflow-y: auto; }
+        .table-container { height: calc(100vh - 280px); overflow-y: auto; }
         #student-list { max-height: 40vh; overflow-y: auto; }
         #student-list li:hover { background-color: #334155; }
-        
-        #student-list li.completed-1 { color: #f97316 !important; font-weight: 600; }
-        #student-list li.completed-2 { color: #3b82f6 !important; font-weight: 600; }
-        #student-list li.completed-3 { color: #eab308 !important; font-weight: 600; }
-        #student-list li.completed-4 { color: #ec4899 !important; font-weight: 600; }
-        #student-list li.completed-5 { color: #ef4444 !important; font-weight: 600; opacity: 0.7; pointer-events: none; }
-
+        #student-list li.completed {
+            color: #4ade80 !important; /* Green */
+            font-weight: 600; opacity: 0.7; pointer-events: none;
+        }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -90,6 +87,7 @@
             </div>
             <ul class="flex flex-col space-y-2 px-4">
                 <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">Face Scan</span></a></li>
+                <li><a href="#" id="nav-list" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-users fa-fw"></i><span class="font-semibold">List Students</span></a></li>
                 <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">Saved Records</span></a></li>
             </ul>
         </aside>
@@ -135,10 +133,29 @@
                      </div>
                 </div>
 
+                <div id="page-list" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                        <h1 class="text-2xl text-white khmer-title">List Students</h1>
+                        <select id="list-class-filter" class="filter-select w-full md:w-auto"></select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-center">
+                        <div class="bg-slate-700/50 p-4 rounded-lg"><p class="text-slate-400">Total Students</p><p id="list-total-count" class="text-2xl font-bold text-white">-</p></div>
+                        <div class="bg-green-800/30 p-4 rounded-lg"><p class="text-green-400">With Photos</p><p id="list-completed-count" class="text-2xl font-bold text-green-400">-</p></div>
+                        <div class="bg-red-800/30 p-4 rounded-lg"><p class="text-red-400">Without Photos</p><p id="list-pending-count" class="text-2xl font-bold text-red-400">-</p></div>
+                    </div>
+                    <div id="list-container" class="table-container flex-1 overflow-x-auto">
+                        <div id="list-loading" class="text-center py-10"><p class="text-slate-400">Loading student list...</p></div>
+                        <table id="list-table" class="hidden w-full text-left text-slate-300">
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Image</th><th class="p-3">Status</th></tr></thead>
+                           <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div id="page-records" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <h1 class="text-2xl text-white khmer-title">Saved Records</h1>
-                        <select id="class-filter" class="filter-select w-full md:w-auto"></select>
+                        <select id="records-class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
                     <div id="records-container" class="table-container flex-1 overflow-x-auto">
                         <div id="records-loading" class="text-center py-10"><p class="text-slate-400">Loading records...</p></div>
@@ -175,15 +192,26 @@
           modalIcon = document.getElementById('modal-icon'), modalMessage = document.getElementById('modal-message'),
           modalCloseBtn = document.getElementById('modal-close-btn'), modalButtons = document.getElementById('modal-buttons');
 
-    const pageScan = document.getElementById('page-scan'), pageRecords = document.getElementById('page-records'),
-          navScan = document.getElementById('nav-scan'), navRecords = document.getElementById('nav-records'),
-          recordsLoading = document.getElementById('records-loading'), recordsTable = document.getElementById('records-table'),
-          sidebar = document.getElementById('sidebar'), menuBtn = document.getElementById('menu-btn'),
-          classFilter = document.getElementById('class-filter'), sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    // Page Elements
+    const pageScan = document.getElementById('page-scan'), pageRecords = document.getElementById('page-records'), pageList = document.getElementById('page-list'),
+          navScan = document.getElementById('nav-scan'), navRecords = document.getElementById('nav-records'), navList = document.getElementById('nav-list'),
+          sidebar = document.getElementById('sidebar'), menuBtn = document.getElementById('menu-btn'), sidebarBackdrop = document.getElementById('sidebar-backdrop');
           
+    // Search Elements
     const selectionArea = document.getElementById('selection-area');
     const studentSearchInput = document.getElementById('student-search-input');
     const studentList = document.getElementById('student-list');
+    
+    // Records Page Elements
+    const recordsLoading = document.getElementById('records-loading'), recordsTable = document.getElementById('records-table'),
+          recordsClassFilter = document.getElementById('records-class-filter');
+
+    // List Students Page Elements
+    const listLoading = document.getElementById('list-loading'), listTable = document.getElementById('list-table'),
+          listClassFilter = document.getElementById('list-class-filter'),
+          listTotalCount = document.getElementById('list-total-count'),
+          listCompletedCount = document.getElementById('list-completed-count'),
+          listPendingCount = document.getElementById('list-pending-count');
 
     const icons = {
         success: `<svg class="w-full h-full text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
@@ -192,19 +220,14 @@
         confirm: `<svg class="w-full h-full text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`
     };
 
-    let studentsData = [], savedRecordsData = [], currentStream, faceApiInterval, stableFrames = 0, currentFacingMode = 'user', selectedStudent = null;
+    let studentsData = [], savedRecordsData = [], allStudentsListData = [], currentStream, faceApiInterval, stableFrames = 0, currentFacingMode = 'user', selectedStudent = null;
     
     function showModal(type, message, onConfirm = null) {
         modalIcon.innerHTML = icons[type];
         modalMessage.textContent = message;
         modal.classList.remove('hidden');
-        
-        modalButtons.innerHTML = ''; // Clear old buttons
         if (onConfirm) {
-            modalButtons.innerHTML = `
-                <button id="modal-cancel-btn" class="w-full bg-slate-600 text-white py-2 rounded-lg font-semibold hover:bg-slate-700 transition">Cancel</button>
-                <button id="modal-confirm-btn" class="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition">Delete</button>
-            `;
+            modalButtons.innerHTML = `<button id="modal-cancel-btn" class="w-full bg-slate-600 text-white py-2 rounded-lg font-semibold hover:bg-slate-700 transition">Cancel</button><button id="modal-confirm-btn" class="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition">Delete</button>`;
             document.getElementById('modal-confirm-btn').onclick = () => { onConfirm(); modal.classList.add('hidden'); };
             document.getElementById('modal-cancel-btn').onclick = () => modal.classList.add('hidden');
         } else {
@@ -225,6 +248,7 @@
         const data = await res.json();
         if (data.status === 'error') throw new Error(`Script Error: ${data.message}`);
         studentsData = data.slice(1);
+        allStudentsListData = studentsData; // Store a full copy for the List Students page
         populateStudentList();
       } catch (e) { showModal('error', `Could not fetch student data: ${e.message}`); }
     }
@@ -239,23 +263,73 @@
             const li = document.createElement('li');
             li.className = 'p-3 rounded-lg cursor-pointer transition flex justify-between items-center';
             const uploadCount = s[4];
-            if (uploadCount > 0) li.classList.add(`completed-${uploadCount}`);
-            const countIndicator = uploadCount >= 5 ? `<i class="fas fa-check-circle ml-2"></i>` : (uploadCount > 0 ? `<span>(${uploadCount})</span>` : '');
-            if (uploadCount >= 5) { li.style.pointerEvents = 'none'; li.style.opacity = '0.7'; } 
-            else { li.onclick = () => { selectedStudent = s; startCamera('user'); }; }
+            if (uploadCount > 0) li.classList.add(`completed`);
+            const countIndicator = uploadCount > 0 ? `<i class="fas fa-check-circle ml-2 text-green-400"></i>` : '';
+            if (uploadCount > 0) {
+                li.style.pointerEvents = 'none'; li.style.opacity = '0.7'; li.style.color = '#4ade80';
+            } else {
+                li.onclick = () => { selectedStudent = s; startCamera('user'); };
+            }
             li.innerHTML = `<span>${s[0]} - ${s[1]}</span>` + countIndicator;
             studentList.appendChild(li);
         });
     }
 
-    function populateClassFilter(records) {
+    // --- NEW FUNCTIONS FOR LIST STUDENTS PAGE ---
+    function populateListClassFilter() {
+        const classes = [...new Set(allStudentsListData.map(s => s[2]).filter(Boolean))];
+        listClassFilter.innerHTML = '<option value="all">All Classes</option>';
+        classes.sort().forEach(c => listClassFilter.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    function displayStudentList() {
+        listLoading.style.display = 'block';
+        listTable.classList.add('hidden');
+        populateListClassFilter();
+        filterStudentListTable();
+        listLoading.style.display = 'none';
+        listTable.classList.remove('hidden');
+    }
+
+    function filterStudentListTable() {
+        const selectedClass = listClassFilter.value;
+        const tbody = listTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        const studentsToDisplay = selectedClass === 'all' 
+            ? allStudentsListData 
+            : allStudentsListData.filter(s => s[2] === selectedClass);
+
+        let completedCount = 0;
+        
+        if (studentsToDisplay.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">No students found for this class.</td></tr>`;
+        } else {
+            studentsToDisplay.forEach(student => {
+                const hasImage = student[4] > 0;
+                if(hasImage) completedCount++;
+                const statusIcon = hasImage
+                    ? `<i class="fas fa-check-circle text-green-400"></i>`
+                    : `<i class="fas fa-times-circle text-red-400"></i>`;
+                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3">${student[1]}</td><td class="p-3">${student[2] || 'N/A'}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        
+        listTotalCount.textContent = studentsToDisplay.length;
+        listCompletedCount.textContent = completedCount;
+        listPendingCount.textContent = studentsToDisplay.length - completedCount;
+    }
+
+
+    // --- Functions for SAVED RECORDS PAGE ---
+    function populateRecordsClassFilter(records) {
         const classes = [...new Set(records.map(r => r[3]).filter(Boolean))];
-        classFilter.innerHTML = '<option value="all">All Classes</option>';
-        classes.sort().forEach(c => classFilter.innerHTML += `<option value="${c}">${c}</option>`);
+        recordsClassFilter.innerHTML = '<option value="all">All Classes</option>';
+        classes.sort().forEach(c => recordsClassFilter.innerHTML += `<option value="${c}">${c}</option>`);
     }
     
     function filterRecordsTable() {
-        const selectedClass = classFilter.value;
+        const selectedClass = recordsClassFilter.value;
         const tbody = recordsTable.querySelector('tbody');
         tbody.innerHTML = '';
         const recordsToDisplay = selectedClass === 'all' ? savedRecordsData : savedRecordsData.filter(r => r[3] === selectedClass);
@@ -266,32 +340,29 @@
             const row = document.createElement('tr');
             row.className = 'border-b border-slate-700';
             row.innerHTML = `<td class="p-3">${serialNumber}</td><td class="p-3">${record[1]}</td><td class="p-3">${record[2]}</td><td class="p-3">${record[3]}</td><td class="p-3">${record[4]}</td><td class="p-3"><a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-16 h-16 group rounded-lg overflow-hidden"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center transition-opacity"><i class="fas fa-expand text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"></i></div></a></td><td class="p-3"><button class="text-red-400 hover:text-red-600 transition delete-btn"><i class="fas fa-trash-alt"></i></button></td>`;
-            
             row.querySelector('.delete-btn').onclick = () => handleDelete(serialNumber, imageUrl);
             tbody.appendChild(row);
         });
     }
 
     async function handleDelete(serialNumber, imageUrl) {
-        showModal('confirm', 'Are you sure you want to delete this record? This cannot be undone.', async () => {
-            showModal('loading', 'Deleting record...');
+        showModal('confirm', 'Are you sure you want to delete this record?', async () => {
+            showModal('loading', 'Deleting...');
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'delete', serialNumber, imageUrl }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     redirect: 'follow'
                 });
                 if (!res.ok) throw new Error(`Server error: ${res.status}`);
                 const r = await res.json();
                 if (r.status === 'success') {
-                    showModal('success', "Record deleted successfully!");
+                    showModal('success', "Record deleted!");
                     modalCloseBtn.onclick = () => location.reload();
                 } else throw new Error(r.message || "Unknown server error.");
             } catch (e) { showModal('error', `Delete failed: ${e.message}`); }
         });
     }
-
 
     async function displaySavedRecords() {
         recordsLoading.style.display = 'block'; recordsTable.classList.add('hidden');
@@ -300,7 +371,7 @@
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const data = await res.json();
             savedRecordsData = data.slice(1);
-            populateClassFilter(savedRecordsData);
+            populateRecordsClassFilter(savedRecordsData);
             filterRecordsTable();
             recordsLoading.style.display = 'none';
             recordsTable.classList.remove('hidden');
@@ -384,7 +455,6 @@
                     class: selectedStudent[2], group: selectedStudent[3],
                     imageData 
                 }),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 redirect: 'follow'
             });
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
@@ -404,15 +474,34 @@
     
     switchCameraBtn.onclick = () => startCamera(currentFacingMode === 'user' ? 'environment' : 'user');
     backBtn.onclick = () => resetToSelection();
-    
     studentSearchInput.oninput = () => populateStudentList(studentSearchInput.value);
 
+    // Navigation Logic
     const closeSidebar = () => { sidebar.classList.remove('is-open'); sidebarBackdrop.classList.add('hidden'); };
-    navScan.onclick = (e) => { e.preventDefault(); pageRecords.classList.add('hidden'); pageScan.classList.remove('hidden'); navScan.classList.add('active'); navRecords.classList.remove('active'); closeSidebar(); };
-    navRecords.onclick = (e) => { e.preventDefault(); pageScan.classList.add('hidden'); pageRecords.classList.remove('hidden'); navRecords.classList.add('active'); navScan.classList.remove('active'); stopCamera(); displaySavedRecords(); closeSidebar(); };
+    const navLinks = [navScan, navList, navRecords];
+    const pages = [pageScan, pageList, pageRecords];
+
+    navLinks.forEach((link, index) => {
+        link.onclick = (e) => {
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove('active'));
+            pages.forEach(p => p.classList.add('hidden'));
+            
+            link.classList.add('active');
+            pages[index].classList.remove('hidden');
+            
+            stopCamera();
+            if (pages[index] === pageRecords) displaySavedRecords();
+            if (pages[index] === pageList) displayStudentList();
+
+            closeSidebar();
+        }
+    });
+
     menuBtn.onclick = () => { sidebar.classList.toggle('is-open'); sidebarBackdrop.classList.toggle('hidden'); };
     sidebarBackdrop.onclick = () => closeSidebar();
-    classFilter.onchange = () => filterRecordsTable();
+    recordsClassFilter.onchange = () => filterRecordsTable();
+    listClassFilter.onchange = () => filterStudentListTable();
 
     window.onload = async () => {
       document.body.insertAdjacentHTML('afterbegin', `<div id="initial-loading" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50"><img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg"><p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p></div>`);
