@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ប្រព័ន្ធស្កେនមុខឌីជីថល</title>
+    <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
     <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
@@ -138,7 +138,6 @@
                         <h1 class="text-2xl text-white khmer-title">List Students</h1>
                         <select id="list-class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
-                    <!-- EDITED: Added icons to stat cards for a more professional look -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-left">
                         <div class="bg-slate-700/50 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-users fa-2x text-slate-400"></i><div><p class="text-slate-400">Total Students</p><p id="list-total-count" class="text-2xl font-bold text-white">-</p></div></div>
                         <div class="bg-green-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-check fa-2x text-green-400"></i><div><p class="text-green-400">With Photos</p><p id="list-completed-count" class="text-2xl font-bold text-green-400">-</p></div></div>
@@ -147,7 +146,6 @@
                     <div id="list-container" class="table-container flex-1 overflow-x-auto">
                         <div id="list-loading" class="text-center py-10"><p class="text-slate-400">Loading student list...</p></div>
                         <table id="list-table" class="hidden w-full text-left text-slate-300">
-                           <!-- EDITED: Changed "Image" header to "Class" -->
                            <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Class</th><th class="p-3">Status</th></tr></thead>
                            <tbody></tbody>
                         </table>
@@ -177,7 +175,7 @@
         <div id="modal-icon" class="w-16 h-16 mx-auto mb-4"></div>
         <p id="modal-message" class="text-lg font-semibold text-white mb-6"></p>
         <div id="modal-buttons" class="flex gap-4">
-            <button id="modal-close-btn" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">យល់ព្រម</button>
+            {/* Buttons will be injected here by JavaScript */}
         </div>
       </div>
     </div>
@@ -220,17 +218,32 @@
 
     let studentsData = [], savedRecordsData = [], allStudentsListData = [], currentStream, faceApiInterval, stableFrames = 0, currentFacingMode = 'user', selectedStudent = null;
     
+    // CORRECTED: This new function handles all modal button logic reliably.
     function showModal(type, message, onConfirm = null) {
         modalIcon.innerHTML = icons[type];
         modalMessage.textContent = message;
         modal.classList.remove('hidden');
+        modalButtons.innerHTML = ''; // Clear old buttons
+
         if (onConfirm) {
-            modalButtons.innerHTML = `<button id="modal-cancel-btn" class="w-full bg-slate-600 text-white py-2 rounded-lg font-semibold hover:bg-slate-700 transition">Cancel</button><button id="modal-confirm-btn" class="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition">Delete</button>`;
-            document.getElementById('modal-confirm-btn').onclick = () => { onConfirm(); modal.classList.add('hidden'); };
-            document.getElementById('modal-cancel-btn').onclick = () => modal.classList.add('hidden');
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = "w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition";
+            confirmBtn.textContent = "Delete";
+            confirmBtn.onclick = () => { onConfirm(); modal.classList.add('hidden'); };
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = "w-full bg-slate-600 text-white py-2 rounded-lg font-semibold hover:bg-slate-700 transition";
+            cancelBtn.textContent = "Cancel";
+            cancelBtn.onclick = () => modal.classList.add('hidden');
+            
+            modalButtons.appendChild(cancelBtn);
+            modalButtons.appendChild(confirmBtn);
         } else {
-            modalButtons.innerHTML = `<button id="modal-close-btn" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">យល់ព្រម</button>`;
-            document.getElementById('modal-close-btn').onclick = () => modal.classList.add('hidden');
+            const closeBtn = document.createElement('button');
+            closeBtn.className = "w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition";
+            closeBtn.textContent = "យល់ព្រម";
+            closeBtn.onclick = () => modal.classList.add('hidden');
+            modalButtons.appendChild(closeBtn);
         }
     }
     
@@ -273,57 +286,10 @@
         });
     }
 
-    // --- NEW FUNCTIONS FOR LIST STUDENTS PAGE ---
-    function populateListClassFilter() {
-        const classes = [...new Set(allStudentsListData.map(s => s[2]).filter(Boolean))];
-        listClassFilter.innerHTML = '<option value="all">All Classes</option>';
-        classes.sort().forEach(c => listClassFilter.innerHTML += `<option value="${c}">${c}</option>`);
-    }
-
-    function displayStudentList() {
-        listLoading.style.display = 'block';
-        listTable.classList.add('hidden');
-        populateListClassFilter();
-        filterStudentListTable();
-        listLoading.style.display = 'none';
-        listTable.classList.remove('hidden');
-    }
-
-    function filterStudentListTable() {
-        const selectedClass = listClassFilter.value;
-        const tbody = listTable.querySelector('tbody');
-        tbody.innerHTML = '';
-        const studentsToDisplay = selectedClass === 'all' 
-            ? allStudentsListData 
-            : allStudentsListData.filter(s => s[2] === selectedClass);
-
-        let completedCount = 0;
-        
-        if (studentsToDisplay.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">No students found for this class.</td></tr>`;
-        } else {
-            studentsToDisplay.forEach(student => {
-                const hasImage = student[4] > 0;
-                if(hasImage) completedCount++;
-                const statusIcon = hasImage
-                    ? `<i class="fas fa-check-circle text-green-400"></i>`
-                    : `<i class="fas fa-times-circle text-red-400"></i>`;
-                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3">${student[1]}</td><td class="p-3">${student[2] || 'N/A'}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
-                tbody.insertAdjacentHTML('beforeend', row);
-            });
-        }
-        
-        listTotalCount.textContent = studentsToDisplay.length;
-        listCompletedCount.textContent = completedCount;
-        listPendingCount.textContent = studentsToDisplay.length - completedCount;
-    }
-
-
-    // --- Functions for SAVED RECORDS PAGE ---
-    function populateRecordsClassFilter(records) {
+    function populateClassFilter(records, filterElement) {
         const classes = [...new Set(records.map(r => r[3]).filter(Boolean))];
-        recordsClassFilter.innerHTML = '<option value="all">All Classes</option>';
-        classes.sort().forEach(c => recordsClassFilter.innerHTML += `<option value="${c}">${c}</option>`);
+        filterElement.innerHTML = '<option value="all">All Classes</option>';
+        classes.sort().forEach(c => filterElement.innerHTML += `<option value="${c}">${c}</option>`);
     }
     
     function filterRecordsTable() {
@@ -333,8 +299,7 @@
         const recordsToDisplay = selectedClass === 'all' ? savedRecordsData : savedRecordsData.filter(r => r[3] === selectedClass);
         if (recordsToDisplay.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-400">No records found.</td></tr>`; return; }
         recordsToDisplay.forEach(record => {
-            const serialNumber = record[0];
-            const imageUrl = record[5];
+            const serialNumber = record[0]; const imageUrl = record[5];
             const row = document.createElement('tr');
             row.className = 'border-b border-slate-700';
             row.innerHTML = `<td class="p-3">${serialNumber}</td><td class="p-3">${record[1]}</td><td class="p-3">${record[2]}</td><td class="p-3">${record[3]}</td><td class="p-3">${record[4]}</td><td class="p-3"><a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-16 h-16 group rounded-lg overflow-hidden"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center transition-opacity"><i class="fas fa-expand text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"></i></div></a></td><td class="p-3"><button class="text-red-400 hover:text-red-600 transition delete-btn"><i class="fas fa-trash-alt"></i></button></td>`;
@@ -355,8 +320,9 @@
                 if (!res.ok) throw new Error(`Server error: ${res.status}`);
                 const r = await res.json();
                 if (r.status === 'success') {
+                    // CORRECTED: Pass a callback function to reload the page on close
                     showModal('success', "Record deleted!");
-                    modalCloseBtn.onclick = () => location.reload();
+                    document.getElementById('modal-buttons').querySelector('button').onclick = () => location.reload();
                 } else throw new Error(r.message || "Unknown server error.");
             } catch (e) { showModal('error', `Delete failed: ${e.message}`); }
         });
@@ -369,11 +335,40 @@
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const data = await res.json();
             savedRecordsData = data.slice(1);
-            populateRecordsClassFilter(savedRecordsData);
+            populateClassFilter(savedRecordsData, recordsClassFilter);
             filterRecordsTable();
             recordsLoading.style.display = 'none';
             recordsTable.classList.remove('hidden');
         } catch(e) { recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
+    }
+
+    function filterStudentListTable() {
+        const selectedClass = listClassFilter.value;
+        const tbody = listTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        const studentsToDisplay = selectedClass === 'all' ? allStudentsListData : allStudentsListData.filter(s => s[2] === selectedClass);
+        let completedCount = 0;
+        if (studentsToDisplay.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">No students found.</td></tr>`;
+        } else {
+            studentsToDisplay.forEach(student => {
+                const hasImage = student[4] > 0;
+                if(hasImage) completedCount++;
+                const statusIcon = hasImage ? `<i class="fas fa-check-circle text-green-400"></i>` : `<i class="fas fa-times-circle text-red-400"></i>`;
+                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3">${student[1]}</td><td class="p-3">${student[2] || 'N/A'}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        listTotalCount.textContent = studentsToDisplay.length;
+        listCompletedCount.textContent = completedCount;
+        listPendingCount.textContent = studentsToDisplay.length - completedCount;
+    }
+
+    function displayStudentList() {
+        listLoading.style.display = 'block'; listTable.classList.add('hidden');
+        populateClassFilter(allStudentsListData.map(s => [,,,s[2]]), listClassFilter);
+        filterStudentListTable();
+        listLoading.style.display = 'none'; listTable.classList.remove('hidden');
     }
 
     async function startCamera(facingMode = 'user') {
@@ -458,8 +453,9 @@
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const r = await res.json();
             if (r.status === 'success') {
+                // CORRECTED: Pass a callback function to reload the page on close
                 showModal('success', "Image saved successfully!");
-                modalCloseBtn.onclick = () => location.reload();
+                document.getElementById('modal-buttons').querySelector('button').onclick = () => location.reload();
             } else throw new Error(r.message || "Unknown server error.");
         } catch (e) { showModal('error', `Upload failed: ${e.message}`); }
     };
@@ -474,7 +470,6 @@
     backBtn.onclick = () => resetToSelection();
     studentSearchInput.oninput = () => populateStudentList(studentSearchInput.value);
 
-    // Navigation Logic
     const closeSidebar = () => { sidebar.classList.remove('is-open'); sidebarBackdrop.classList.add('hidden'); };
     const navLinks = [navScan, navList, navRecords];
     const pages = [pageScan, pageList, pageRecords];
