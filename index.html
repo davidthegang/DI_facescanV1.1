@@ -67,7 +67,19 @@
             color: #4ade80 !important; /* Green */
             font-weight: 600; opacity: 0.7; pointer-events: none;
         }
-        ::-webkit-scrollbar { width: 8px; }
+        .filter-select {
+            background-color: #E5E7EB; color: #111827;
+            padding: 0.5rem 2rem 0.5rem 0.75rem; font-size: 0.875rem;
+            border-radius: 0.5rem; border: 1px solid #9CA3AF;
+            -webkit-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;
+        }
+        .filter-select option { background: #F3F4F6; color: #000000; }
+        @media (min-width: 768px) {
+            .filter-select { padding: 0.6rem 2.5rem 0.6rem 1rem; font-size: 1rem; }
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px;}
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
@@ -83,12 +95,12 @@
         <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="text-center py-6 mb-4">
                 <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
-                <h2 class="text-xl font-bold text-white khmer-title">Dashboard</h2>
+                <h2 class="text-xl font-bold text-white khmer-title">ឧស្សាហកម្មឌីជីថល</h2>
             </div>
             <ul class="flex flex-col space-y-2 px-4">
-                <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">Face Scan</span></a></li>
-                <li><a href="#" id="nav-list" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-users fa-fw"></i><span class="font-semibold">List Students</span></a></li>
-                <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">Saved Records</span></a></li>
+                <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">ប្រព័ន្ធស្កេនមុខ</span></a></li>
+                <li><a href="#" id="nav-list" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-users fa-fw"></i><span class="font-semibold">ទិន្នន័យរូបភាពនិស្សិត</span></a></li>
+                <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">រូបភាពបានរក្សាទុក</span></a></li>
             </ul>
         </aside>
 
@@ -96,7 +108,7 @@
             <!-- Top Bar -->
             <header class="w-full h-16 bg-slate-800/50 backdrop-blur-lg flex-shrink-0 flex items-center px-6 sticky top-0 z-20">
                 <button id="menu-btn" class="text-white mr-4"><i class="fas fa-bars text-xl"></i></button>
-                <h1 class="text-xl font-bold text-white khmer-title">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យ</h1>
+                <h1 class="text-xl font-bold text-white khmer-title">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យរូបភាព</h1>
             </header>
             
             <!-- Main Content -->
@@ -111,7 +123,7 @@
                             <div id="selection-area" class="mb-5">
                                <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                <ul id="student-list" class="space-y-1">
-                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
+                                   <li class="text-center text-slate-400 p-4">កំពុងទាញយកទិន្នន័យ...</li>
                                </ul>
                             </div>
 
@@ -135,18 +147,18 @@
 
                 <div id="page-list" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                        <h1 class="text-2xl text-white khmer-title">List Students</h1>
+                        <h1 class="text-2xl text-white khmer-title">ទិន្នន័យរូបភាពនិស្សិត</h1>
                         <select id="list-class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-left">
-                        <div class="bg-slate-700/50 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-users fa-2x text-slate-400"></i><div><p class="text-slate-400">Total Students</p><p id="list-total-count" class="text-2xl font-bold text-white">-</p></div></div>
-                        <div class="bg-green-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-check fa-2x text-green-400"></i><div><p class="text-green-400">With Photos</p><p id="list-completed-count" class="text-2xl font-bold text-green-400">-</p></div></div>
-                        <div class="bg-red-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-clock fa-2x text-red-400"></i><div><p class="text-red-400">Without Photos</p><p id="list-pending-count" class="text-2xl font-bold text-red-400">-</p></div></div>
+                        <div class="bg-slate-700/50 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-users fa-2x text-slate-400"></i><div><p class="text-slate-400">ចំនួននិស្សិតសរុប</p><p id="list-total-count" class="text-2xl font-bold text-white">-</p></div></div>
+                        <div class="bg-green-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-check fa-2x text-green-400"></i><div><p class="text-green-400">និស្សិតមានរូបភាព</p><p id="list-completed-count" class="text-2xl font-bold text-green-400">-</p></div></div>
+                        <div class="bg-red-800/30 p-4 rounded-lg flex items-center gap-4"><i class="fas fa-user-clock fa-2x text-red-400"></i><div><p class="text-red-400">និស្សិតគ្មានរូបភាព</p><p id="list-pending-count" class="text-2xl font-bold text-red-400">-</p></div></div>
                     </div>
                     <div id="list-container" class="table-container flex-1 overflow-x-auto">
-                        <div id="list-loading" class="text-center py-10"><p class="text-slate-400">Loading student list...</p></div>
+                        <div id="list-loading" class="text-center py-10"><p class="text-slate-400">កំពុងទាញទិន្នន័យរូបភាពនិស្សិត...</p></div>
                         <table id="list-table" class="hidden w-full text-left text-slate-300">
-                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Class</th><th class="p-3">Status</th></tr></thead>
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">អត្ថលេខ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">រូបភាព</th><th class="p-3 text-center">Status</th></tr></thead>
                            <tbody></tbody>
                         </table>
                     </div>
@@ -154,13 +166,13 @@
 
                 <div id="page-records" class="hidden main-content rounded-2xl p-6 h-full flex flex-col">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h1 class="text-2xl text-white khmer-title">Saved Records</h1>
+                        <h1 class="text-2xl text-white khmer-title">រូបភាពបានរក្សាទុក</h1>
                         <select id="records-class-filter" class="filter-select w-full md:w-auto"></select>
                     </div>
                     <div id="records-container" class="table-container flex-1 overflow-x-auto">
-                        <div id="records-loading" class="text-center py-10"><p class="text-slate-400">Loading records...</p></div>
+                        <div id="records-loading" class="text-center py-10"><p class="text-slate-400">កំពុងទាញរូបភាពបានរក្សាទុក...</p></div>
                         <table id="records-table" class="hidden w-full text-left text-slate-300">
-                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">#</th><th class="p-3">Name</th><th class="p-3">ID</th><th class="p-3">Class</th><th class="p-3">Group</th><th class="p-3">Image</th><th class="p-3">Action</th></tr></thead>
+                           <thead class="bg-slate-700/50 sticky top-0"><tr><th class="p-3">ល.រ</th><th class="p-3">ឈ្មោះ</th><th class="p-3">អត្ថលេខ</th><th class="p-3">ថ្នាក់</th><th class="p-3">ក្រុម</th><th class="p-3">រូបភាព</th><th class="p-3 text-center">កែ</th></tr></thead>
                            <tbody></tbody>
                         </table>
                     </div>
@@ -218,18 +230,13 @@
 
     let studentsData = [], savedRecordsData = [], allStudentsListData = [], currentStream, faceApiInterval, stableFrames = 0, currentFacingMode = 'user', selectedStudent = null;
     
-    // CORRECTED: This new function handles all modal button logic reliably.
     function showModal(type, message, actions = {}) {
         modalIcon.innerHTML = icons[type];
         modalMessage.textContent = message;
         modal.classList.remove('hidden');
-        modalButtons.innerHTML = ''; // Clear old buttons
-
-        if (type === 'loading') {
-            return; // No buttons for loading state
-        }
-        
-        if (actions.onConfirm) { // For confirmation dialogs
+        modalButtons.innerHTML = ''; 
+        if (type === 'loading') return;
+        if (actions.onConfirm) {
             const confirmBtn = document.createElement('button');
             confirmBtn.className = "w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition";
             confirmBtn.textContent = "Delete";
@@ -242,7 +249,7 @@
             
             modalButtons.appendChild(cancelBtn);
             modalButtons.appendChild(confirmBtn);
-        } else { // For standard alerts
+        } else {
             const closeBtn = document.createElement('button');
             closeBtn.className = "w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition";
             closeBtn.textContent = "យល់ព្រម";
@@ -306,7 +313,7 @@
             const serialNumber = record[0]; const imageUrl = record[5];
             const row = document.createElement('tr');
             row.className = 'border-b border-slate-700';
-            row.innerHTML = `<td class="p-3">${serialNumber}</td><td class="p-3">${record[1]}</td><td class="p-3">${record[2]}</td><td class="p-3">${record[3]}</td><td class="p-3">${record[4]}</td><td class="p-3"><a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-16 h-16 group rounded-lg overflow-hidden"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center transition-opacity"><i class="fas fa-expand text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"></i></div></a></td><td class="p-3"><button class="text-red-400 hover:text-red-600 transition delete-btn"><i class="fas fa-trash-alt"></i></button></td>`;
+            row.innerHTML = `<td class="p-3">${serialNumber}</td><td class="p-3 whitespace-nowrap">${record[1]}</td><td class="p-3">${record[2]}</td><td class="p-3">${record[3]}</td><td class="p-3">${record[4]}</td><td class="p-3"><a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-16 h-16 group rounded-lg overflow-hidden"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center transition-opacity"><i class="fas fa-expand text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"></i></div></a></td><td class="p-3 text-center"><button class="text-red-400 hover:text-red-600 transition delete-btn"><i class="fas fa-trash-alt"></i></button></td>`;
             row.querySelector('.delete-btn').onclick = () => handleDelete(serialNumber, imageUrl);
             tbody.appendChild(row);
         });
@@ -346,20 +353,41 @@
         } catch(e) { recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
     }
 
+    function populateListClassFilterV2() {
+        const classes = [...new Set(allStudentsListData.map(s => s[2]).filter(Boolean))];
+        listClassFilter.innerHTML = '<option value="all">All Students</option>';
+        listClassFilter.innerHTML += '<option value="with_photos">With Photos</option>';
+        classes.sort().forEach(c => listClassFilter.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+    
     function filterStudentListTable() {
-        const selectedClass = listClassFilter.value;
+        const selectedFilter = listClassFilter.value;
         const tbody = listTable.querySelector('tbody');
         tbody.innerHTML = '';
-        const studentsToDisplay = selectedClass === 'all' ? allStudentsListData : allStudentsListData.filter(s => s[2] === selectedClass);
-        let completedCount = 0;
+        const imageUrlMap = new Map(savedRecordsData.map(r => [r[2], r[5]]));
+        
+        let studentsToDisplay;
+        if (selectedFilter === 'all') {
+            studentsToDisplay = allStudentsListData;
+        } else if (selectedFilter === 'with_photos') {
+            studentsToDisplay = allStudentsListData.filter(s => s[4] > 0);
+        } else {
+            studentsToDisplay = allStudentsListData.filter(s => s[2] === selectedFilter);
+        }
+
+        let completedCount = studentsToDisplay.filter(s => s[4] > 0).length;
+        
         if (studentsToDisplay.length === 0) {
             tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">No students found.</td></tr>`;
         } else {
             studentsToDisplay.forEach(student => {
                 const hasImage = student[4] > 0;
-                if(hasImage) completedCount++;
+                const imageUrl = hasImage ? imageUrlMap.get(student[0]) : null;
+                const imageCell = imageUrl 
+                    ? `<a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-12 h-12 group rounded-lg overflow-hidden mx-auto"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"></a>`
+                    : '<span class="text-slate-500">-</span>';
                 const statusIcon = hasImage ? `<i class="fas fa-check-circle text-green-400"></i>` : `<i class="fas fa-times-circle text-red-400"></i>`;
-                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3">${student[1]}</td><td class="p-3">${student[2] || 'N/A'}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
+                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${imageCell}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             });
         }
@@ -368,9 +396,18 @@
         listPendingCount.textContent = studentsToDisplay.length - completedCount;
     }
 
-    function displayStudentList() {
+    async function displayStudentList() {
         listLoading.style.display = 'block'; listTable.classList.add('hidden');
-        populateClassFilter(allStudentsListData.map(s => [,,,s[2]]), listClassFilter);
+        if (savedRecordsData.length === 0) {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getSavedData`);
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                savedRecordsData = data.slice(1);
+            } catch (e) { console.error("Could not pre-fetch records for images:", e); }
+        }
+        
+        populateListClassFilterV2();
         filterStudentListTable();
         listLoading.style.display = 'none'; listTable.classList.remove('hidden');
     }
@@ -443,7 +480,7 @@
     uploadBtn.onclick = async () => {
         if (!selectedStudent) { showModal('error', 'Could not find student data.'); return; }
         const imageData = captureCanvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-        showModal('loading', 'Uploading...');
+        showModal('loading', 'កំពុងបញ្ជូនរូបភាព...');
         try {
             const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -457,13 +494,10 @@
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const r = await res.json();
             if (r.status === 'success') {
-                // CORRECTED: Pass a callback function to reset the view without reloading
-                showModal('success', "Image saved successfully!", { 
-                    onClose: () => {
-                        resetToSelection();
-                        fetchStudents(); // Refresh the list to show the new green status
-                    }
-                });
+                showModal('success', "Image saved successfully!", { onClose: async () => {
+                    resetToSelection();
+                    await fetchStudents(); 
+                }});
             } else throw new Error(r.message || "Unknown server error.");
         } catch (e) { showModal('error', `Upload failed: ${e.message}`); }
     };
@@ -505,7 +539,7 @@
     listClassFilter.onchange = () => filterStudentListTable();
 
     window.onload = async () => {
-      document.body.insertAdjacentHTML('afterbegin', `<div id="initial-loading" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50"><img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg"><p class="text-slate-300 text-lg">កំពុងផ្ទុកប្រព័ន្ធ...</p></div>`);
+      document.body.insertAdjacentHTML('afterbegin', `<div id="initial-loading" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50"><img src="di_logo.png" alt="Logo" class="w-24 h-24 rounded-full mb-4 shadow-lg"><p class="text-slate-300 text-lg">កំពុងទាញទិន្នន័យប្រព័ន្ធ...</p></div>`);
       await loadModels();
       await fetchStudents();
       document.getElementById('initial-loading').style.display = 'none';
