@@ -93,29 +93,48 @@
 
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
-            <div class="flex-grow">
-                <div class="text-center py-6 mb-4">
-                    <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
-                    <h2 class="text-xl font-bold text-white khmer-title">ឧស្សាហកម្មឌីជីថល</h2>
-                </div>
-                <ul class="flex flex-col space-y-2 px-4">
-                    <li><a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-camera-retro fa-fw"></i><span class="font-semibold">ថតរូប</span></a></li>
-                    <li><a href="#" id="nav-list" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-users fa-fw"></i><span class="font-semibold">ទិន្នន័យរូបភាពនិស្សិត</span></a></li>
-                    <li><a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white"><i class="fas fa-database fa-fw"></i><span class="font-semibold">រូបភាពបានរក្សាទុក</span></a></li>
-                </ul>
+    
+    <!-- Header -->
+    <div class="text-center py-6 mb-4">
+        <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
+        <h2 class="text-xl font-bold text-white khmer-title">ឧស្សាហកម្មឌីជីថល</h2>
+    </div>
+
+    <!-- Navigation Links -->
+    <ul class="flex-1 flex flex-col space-y-2 px-4 overflow-y-auto">
+        <li>
+            <a href="#" id="nav-scan" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white">
+                <i class="fas fa-camera-retro fa-fw"></i>
+                <span class="font-semibold">ថតរូប</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" id="nav-list" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white">
+                <i class="fas fa-users fa-fw"></i>
+                <span class="font-semibold">ទិន្នន័យរូបភាពនិស្សិត</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" id="nav-records" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-indigo-500 hover:text-white">
+                <i class="fas fa-database fa-fw"></i>
+                <span class="font-semibold">រូបភាពបានរក្សាទុក</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Footer -->
+    <footer class="p-4 border-t border-slate-700/50 text-slate-400 text-sm">
+        <div class="flex flex-col items-center sm:flex-row sm:justify-between gap-2">
+            <p class="text-center sm:text-left">&copy; 2025 IT Support</p>
+            <div class="flex items-center gap-3">
+                <a href="#" target="_blank" class="hover:text-white transition-colors" title="Telegram">
+                    <i class="fab fa-telegram fa-lg"></i>
+                </a>
             </div>
-             <!-- Footer -->
-            <footer class="w-full p-4 text-slate-400 border-t border-slate-700/50">
-                <div class="flex justify-between items-center text-sm">
-                    <p>&copy; 2025 by IT Support</p>
-                    <div class="flex items-center gap-4">
-                        <a href="#" target="_blank" class="hover:text-white transition-colors" title="Telegram">
-                            <i class="fab fa-telegram fa-lg"></i>
-                        </a>
-                    </div>
-                </div>
-            </footer>
-        </aside>
+        </div>
+    </footer>
+</aside>
+
 
         <div id="content-wrapper" class="flex flex-col flex-1 md:ml-64 transition-all duration-300 ease-in-out">
             <!-- Top Bar -->
@@ -136,7 +155,7 @@
                             <div id="selection-area" class="mb-5">
                                <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                <ul id="student-list" class="space-y-1">
-                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
+                                   <li class="text-center text-slate-400 p-4">កំពុងទាញទិន្នន័យ...</li>
                                </ul>
                             </div>
 
@@ -359,6 +378,7 @@
                         showModal('success', "Record deleted!", { onClose: async () => {
                             await fetchStudents();
                             await displaySavedRecords();
+                            await displayStudentList();
                         }});
                     } else throw new Error(r.message || "Unknown server error.");
                 } catch (e) { showModal('error', `Delete failed: ${e.message}`); }
@@ -380,6 +400,7 @@
         } catch(e) { recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
     }
 
+    // --- NEW FUNCTIONS FOR LIST STUDENTS PAGE ---
     function populateListClassFilterV2() {
         const classes = [...new Set(allStudentsListData.map(s => s[2]).filter(Boolean))];
         listClassFilter.innerHTML = '<option value="all">All Students</option>';
@@ -392,7 +413,12 @@
         const searchTerm = listSearchInput.value.toLowerCase();
         const tbody = listTable.querySelector('tbody');
         tbody.innerHTML = '';
-        const imageUrlMap = new Map(savedRecordsData.map(r => [r[2], r[5]]));
+        const imageUrlMap = new Map();
+        savedRecordsData.forEach(r => {
+            if (!imageUrlMap.has(r[2])) { // r[2] is the student ID
+                imageUrlMap.set(r[2], r[5]); // r[5] is the image URL
+            }
+        });
         
         let studentsToDisplay;
         if (selectedFilter === 'all') {
@@ -420,7 +446,7 @@
                     : '<span class="text-slate-500">-</span>';
 
                 const statusIcon = hasImage ? `<i class="fas fa-check-circle text-green-400"></i>` : `<i class="fas fa-times-circle text-red-400"></i>`;
-                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${imageCell}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
+                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${student[2] || 'N/A'}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             });
         }
@@ -444,6 +470,7 @@
         filterStudentListTable();
         listLoading.style.display = 'none'; listTable.classList.remove('hidden');
     }
+
 
     async function startCamera(facingMode = 'user') {
       currentFacingMode = facingMode;
