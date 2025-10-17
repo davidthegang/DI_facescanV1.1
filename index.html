@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ប្រព័ន្ធថតរូបឌីជីថល</title>
+    <title>ប្រព័ន្ធស្កេនមុខឌីជីថល</title>
     <link rel="icon" href="https://img.freepik.com/premium-vector/face-scan-icon_933463-79729.jpg" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
@@ -88,8 +88,11 @@
 <body class="bg-slate-900 text-slate-200">
 
     <div class="relative min-h-screen md:flex">
+        <!-- Sidebar Backdrop -->
         <div id="sidebar-backdrop" class="hidden md:hidden fixed inset-0 bg-black/50 z-30"></div>
-                <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800/80 backdrop-blur-lg z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
             <div class="flex-grow">
                 <div class="text-center py-6 mb-4">
                     <img src="di_logo.png" alt="Logo" class="w-20 h-20 rounded-full mx-auto mb-2 shadow-lg">
@@ -115,41 +118,43 @@
         </aside>
 
         <div id="content-wrapper" class="flex flex-col flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+            <!-- Top Bar -->
             <header class="w-full h-16 bg-slate-800/50 backdrop-blur-lg flex-shrink-0 flex items-center px-6 sticky top-0 z-20">
-                <button id="menu-btn" class="text-white mr-4 md:hidden"><i class="fas fa-bars text-xl"></i></button>
+                <button id="menu-btn" class="text-white mr-4"><i class="fas fa-bars text-xl"></i></button>
                 <h1 class="text-xl font-bold text-white khmer-title">ប្រព័ន្ធគ្រប់គ្រងទិន្នន័យរូបភាព</h1>
             </header>
             
+            <!-- Main Content -->
             <main class="w-full flex-1 p-4 md:p-8">
                 <div id="page-scan">
                      <div class="main-content rounded-2xl p-6">
-                         <div class="container w-full max-w-md mx-auto relative">
-                             <button id="back-btn" class="hidden absolute -top-2 -left-2 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition z-20" title="Back to Selection"><i class="fas fa-arrow-left"></i></button>
-                             <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
-                             <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
-                             
-                             <div id="selection-area" class="mb-5">
-                                <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
-                                <ul id="student-list" class="space-y-1">
-                                    <li class="text-center text-slate-400 p-4">កំពុងទាញយកទិន្នន័យ...</li>
-                                </ul>
-                             </div>
+                        <div class="container w-full max-w-md mx-auto relative">
+                            <button id="back-btn" class="hidden absolute -top-2 -left-2 w-10 h-10 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition z-20" title="Back to Selection"><i class="fas fa-arrow-left"></i></button>
+                            <h1 class="text-center text-2xl mb-2 text-white khmer-title">ប្រព័ន្ធស្កេនមុខឌីជីថល</h1>
+                            <p id="subtitle" class="text-center text-slate-400 mb-6">សូមជ្រើសរើសអត្តលេខរបស់អ្នក</p>
+                            
+                            <div id="selection-area" class="mb-5">
+                               <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                               <ul id="student-list" class="space-y-1">
+                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
+                               </ul>
+                            </div>
 
-                             <div id="camera-section" class="hidden flex flex-col items-center space-y-4">
-                                 <div id="video-wrapper" class="video-container w-[90%] mx-auto aspect-square">
-                                     <video id="video" autoplay muted playsinline></video>
-                                     <div class="scanner-line"></div>
-                                 </div>
-                                 <button id="switch-camera-btn" class="hidden w-14 h-14 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition" title="Switch Camera"><i class="fas fa-sync-alt fa-lg"></i></button>
-                                 <canvas id="capture-canvas" class="hidden"></canvas>
-                                 <img id="photo-preview" class="hidden w-[90%] mx-auto aspect-square rounded-full border-4 border-green-400 object-cover shadow-lg">
-                                 <p id="face-status" class="text-center text-sm h-5 font-semibold text-slate-400"></p>
-                                 <div class="flex flex-col w-full space-y-3">
-                                     <button id="upload-btn" class="hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg">បញ្ជូនរូបភាព</button>
-                                     <button id="retake-btn" class="hidden w-full bg-slate-600 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">ថតម្តងទៀត</button>
-                                 </div>
-                             </div>
-                         </div>
+                            <div id="camera-section" class="hidden flex flex-col items-center space-y-4">
+                                <div id="video-wrapper" class="video-container w-[90%] mx-auto aspect-square">
+                                    <video id="video" autoplay muted playsinline></video>
+                                    <div class="scanner-line"></div>
+                                </div>
+                                <button id="switch-camera-btn" class="hidden w-14 h-14 bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-slate-600/50 transition" title="Switch Camera"><i class="fas fa-sync-alt fa-lg"></i></button>
+                                <canvas id="capture-canvas" class="hidden"></canvas>
+                                <img id="photo-preview" class="hidden w-[90%] mx-auto aspect-square rounded-full border-4 border-green-400 object-cover shadow-lg">
+                                <p id="face-status" class="text-center text-sm h-5 font-semibold text-slate-400"></p>
+                                <div class="flex flex-col w-full space-y-3">
+                                    <button id="upload-btn" class="hidden w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition shadow-lg">បញ្ជូនរូបភាព</button>
+                                    <button id="retake-btn" class="hidden w-full bg-slate-600 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">ថតម្តងទៀត</button>
+                                </div>
+                            </div>
+                        </div>
                      </div>
                 </div>
 
@@ -157,7 +162,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
                         <h1 class="text-2xl text-white khmer-title">ទិន្នន័យរូបភាពនិស្សិត</h1>
                         <div class="flex gap-4 w-full md:w-auto">
-                            <input type="text" id="list-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="text" id="list-search-input" placeholder="ស្វែងរកអត្តលេខឬឈ្មោះ..." class="w-full bg-slate-700 border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <select id="list-class-filter" class="filter-select w-full md:w-auto"></select>
                         </div>
                     </div>
@@ -179,7 +184,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <h1 class="text-2xl text-white khmer-title">រូបភាពបានរក្សាទុក</h1>
                         <div class="flex gap-4 w-full md:w-auto">
-                           <input type="text" id="records-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border-slate-600 rounded-lg px-4 py-2">
+                           <input type="text" id="records-search-input" placeholder="Search ID or Name..." class="w-full bg-slate-700 border-slate-600 rounded-lg px-4 py-2">
                            <select id="records-class-filter" class="filter-select w-full md:w-auto"></select>
                         </div>
                     </div>
@@ -195,6 +200,7 @@
         </div>
     </div>
     
+    <!-- Modals -->
     <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal">
       <div class="modal-content w-full max-w-sm p-6 rounded-2xl shadow-2xl text-center">
         <div id="modal-icon" class="w-16 h-16 mx-auto mb-4"></div>
@@ -209,30 +215,30 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyslIbsY3Qi8aSCsVGhY6cfn_Sned_un57Sdl2lO5i2eP9rPw-zJ1PQpIjbHAgIp-D0yA/exec';
     // DOM Elements
     const video = document.getElementById('video'), captureCanvas = document.getElementById('capture-canvas'),
-              photoPreview = document.getElementById('photo-preview'), uploadBtn = document.getElementById('upload-btn'),
-              retakeBtn = document.getElementById('retake-btn'), cameraSection = document.getElementById('camera-section'),
-              videoWrapper = document.getElementById('video-wrapper'), faceStatus = document.getElementById('face-status'),
-              subtitle = document.getElementById('subtitle'), switchCameraBtn = document.getElementById('switch-camera-btn'),
-              backBtn = document.getElementById('back-btn'), modal = document.getElementById('modal'),
-              modalIcon = document.getElementById('modal-icon'), modalMessage = document.getElementById('modal-message'),
-              modalButtons = document.getElementById('modal-buttons');
+          photoPreview = document.getElementById('photo-preview'), uploadBtn = document.getElementById('upload-btn'),
+          retakeBtn = document.getElementById('retake-btn'), cameraSection = document.getElementById('camera-section'),
+          videoWrapper = document.getElementById('video-wrapper'), faceStatus = document.getElementById('face-status'),
+          subtitle = document.getElementById('subtitle'), switchCameraBtn = document.getElementById('switch-camera-btn'),
+          backBtn = document.getElementById('back-btn'), modal = document.getElementById('modal'),
+          modalIcon = document.getElementById('modal-icon'), modalMessage = document.getElementById('modal-message'),
+          modalButtons = document.getElementById('modal-buttons');
 
     const pageScan = document.getElementById('page-scan'), pageRecords = document.getElementById('page-records'), pageList = document.getElementById('page-list'),
-              navScan = document.getElementById('nav-scan'), navRecords = document.getElementById('nav-records'), navList = document.getElementById('nav-list'),
-              sidebar = document.getElementById('sidebar'), menuBtn = document.getElementById('menu-btn'), sidebarBackdrop = document.getElementById('sidebar-backdrop');
-              
+          navScan = document.getElementById('nav-scan'), navRecords = document.getElementById('nav-records'), navList = document.getElementById('nav-list'),
+          sidebar = document.getElementById('sidebar'), menuBtn = document.getElementById('menu-btn'), sidebarBackdrop = document.getElementById('sidebar-backdrop');
+          
     const selectionArea = document.getElementById('selection-area');
     const studentSearchInput = document.getElementById('student-search-input');
     const studentList = document.getElementById('student-list');
     
     const recordsLoading = document.getElementById('records-loading'), recordsTable = document.getElementById('records-table'),
-              recordsClassFilter = document.getElementById('records-class-filter'), recordsSearchInput = document.getElementById('records-search-input');
+          recordsClassFilter = document.getElementById('records-class-filter'), recordsSearchInput = document.getElementById('records-search-input');
 
     const listLoading = document.getElementById('list-loading'), listTable = document.getElementById('list-table'),
-              listClassFilter = document.getElementById('list-class-filter'), listSearchInput = document.getElementById('list-search-input'),
-              listTotalCount = document.getElementById('list-total-count'),
-              listCompletedCount = document.getElementById('list-completed-count'),
-              listPendingCount = document.getElementById('list-pending-count');
+          listClassFilter = document.getElementById('list-class-filter'), listSearchInput = document.getElementById('list-search-input'),
+          listTotalCount = document.getElementById('list-total-count'),
+          listCompletedCount = document.getElementById('list-completed-count'),
+          listPendingCount = document.getElementById('list-pending-count');
 
     const icons = {
         success: `<svg class="w-full h-full text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
@@ -350,7 +356,10 @@
                     if (!res.ok) throw new Error(`Server error: ${res.status}`);
                     const r = await res.json();
                     if (r.status === 'success') {
-                        showModal('success', "Record deleted!", { onClose: () => location.reload() });
+                        showModal('success', "Record deleted!", { onClose: async () => {
+                            await fetchStudents();
+                            await displaySavedRecords();
+                        }});
                     } else throw new Error(r.message || "Unknown server error.");
                 } catch (e) { showModal('error', `Delete failed: ${e.message}`); }
             }
@@ -370,7 +379,7 @@
             recordsTable.classList.remove('hidden');
         } catch(e) { recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
     }
-    
+
     function populateListClassFilterV2() {
         const classes = [...new Set(allStudentsListData.map(s => s[2]).filter(Boolean))];
         listClassFilter.innerHTML = '<option value="all">All Students</option>';
@@ -383,7 +392,8 @@
         const searchTerm = listSearchInput.value.toLowerCase();
         const tbody = listTable.querySelector('tbody');
         tbody.innerHTML = '';
-
+        const imageUrlMap = new Map(savedRecordsData.map(r => [r[2], r[5]]));
+        
         let studentsToDisplay;
         if (selectedFilter === 'all') {
             studentsToDisplay = allStudentsListData;
@@ -404,10 +414,13 @@
         } else {
             studentsToDisplay.forEach(student => {
                 const hasImage = student[4] > 0;
-                const classCell = `<span>${student[2]}</span>`;
+                const imageUrl = hasImage ? imageUrlMap.get(student[0].toString()) : null;
+                const imageCell = imageUrl 
+                    ? `<a href="${imageUrl}" target="_blank" rel="noopener noreferrer" class="relative block w-12 h-12 group rounded-lg overflow-hidden mx-auto"><img src="${imageUrl}" class="w-full h-full object-cover" alt="Student photo"></a>`
+                    : '<span class="text-slate-500">-</span>';
 
                 const statusIcon = hasImage ? `<i class="fas fa-check-circle text-green-400"></i>` : `<i class="fas fa-times-circle text-red-400"></i>`;
-                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${classCell}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
+                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${imageCell}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             });
         }
@@ -569,3 +582,4 @@
   </script>
 </body>
 </html>
+
