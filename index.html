@@ -155,7 +155,7 @@
                             <div id="selection-area" class="mb-5">
                                <input type="text" id="student-search-input" placeholder="ស្វែងរកអត្តលេខ ឬឈ្មោះ..." class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                <ul id="student-list" class="space-y-1">
-                                   <li class="text-center text-slate-400 p-4">កំពុងទាញទិន្នន័យ...</li>
+                                   <li class="text-center text-slate-400 p-4">Loading students...</li>
                                </ul>
                             </div>
 
@@ -216,6 +216,7 @@
                     </div>
                 </div>
             </main>
+
         </div>
     </div>
     
@@ -231,7 +232,7 @@
     </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyslIbsY3Qi8aSCsVGhY6cfn_Sned_un57Sdl2lO5i2eP9rPw-zJ1PQpIjbHAgIp-D0yA/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXTQvwmB9RP4Jm3P9n9F-rZRbsljMLq29HvjaOJYPtMq4dF7Tl5wxZbVeznR3ffNCz/exec';
     // DOM Elements
     const video = document.getElementById('video'), captureCanvas = document.getElementById('capture-canvas'),
           photoPreview = document.getElementById('photo-preview'), uploadBtn = document.getElementById('upload-btn'),
@@ -378,7 +379,7 @@
                         showModal('success', "Record deleted!", { onClose: async () => {
                             await fetchStudents();
                             await displaySavedRecords();
-                            await displayStudentList();
+                            await displayStudentList(); // Refresh the list view as well
                         }});
                     } else throw new Error(r.message || "Unknown server error.");
                 } catch (e) { showModal('error', `Delete failed: ${e.message}`); }
@@ -399,8 +400,7 @@
             recordsTable.classList.remove('hidden');
         } catch(e) { recordsLoading.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
     }
-
-    // --- NEW FUNCTIONS FOR LIST STUDENTS PAGE ---
+    
     function populateListClassFilterV2() {
         const classes = [...new Set(allStudentsListData.map(s => s[2]).filter(Boolean))];
         listClassFilter.innerHTML = '<option value="all">All Students</option>';
@@ -413,12 +413,7 @@
         const searchTerm = listSearchInput.value.toLowerCase();
         const tbody = listTable.querySelector('tbody');
         tbody.innerHTML = '';
-        const imageUrlMap = new Map();
-        savedRecordsData.forEach(r => {
-            if (!imageUrlMap.has(r[2])) { // r[2] is the student ID
-                imageUrlMap.set(r[2], r[5]); // r[5] is the image URL
-            }
-        });
+        const imageUrlMap = new Map(savedRecordsData.map(r => [r[2], r[5]]));
         
         let studentsToDisplay;
         if (selectedFilter === 'all') {
@@ -446,7 +441,7 @@
                     : '<span class="text-slate-500">-</span>';
 
                 const statusIcon = hasImage ? `<i class="fas fa-check-circle text-green-400"></i>` : `<i class="fas fa-times-circle text-red-400"></i>`;
-                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${student[2] || 'N/A'}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
+                const row = `<tr class="border-b border-slate-700"><td class="p-3">${student[0]}</td><td class="p-3 whitespace-nowrap">${student[1]}</td><td class="p-3">${imageCell}</td><td class="p-3 text-center">${statusIcon}</td></tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             });
         }
@@ -470,7 +465,6 @@
         filterStudentListTable();
         listLoading.style.display = 'none'; listTable.classList.remove('hidden');
     }
-
 
     async function startCamera(facingMode = 'user') {
       currentFacingMode = facingMode;
